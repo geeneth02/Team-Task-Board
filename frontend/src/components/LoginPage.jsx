@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './LoginPage.css';
 
-// Generates points for a pointy-topped hexagon
 const getHexPoints = (cx, cy, r) => {
   const hw = (Math.sqrt(3) / 2) * r;
   const hh = r / 2;
@@ -9,6 +9,8 @@ const getHexPoints = (cx, cy, r) => {
 };
 
 const LoginPage = () => {
+  const navigate = useNavigate(); // This is required to switch pages
+
   const [formData, setFormData] = useState({
     name: '',
     password: ''
@@ -27,7 +29,7 @@ const LoginPage = () => {
     console.log('Login submitted:', formData);
   };
 
-  const R = 75; // Hexagon radius
+  const R = 75; 
   const darkColor = "#021342";
   const lightColor = "#d6dadf";
 
@@ -35,7 +37,7 @@ const LoginPage = () => {
     <div className="login-page-container">
       {/* Top-Left Cluster */}
       <svg className="hex-cluster top-left-svg" viewBox="0 0 350 350">
-        <polygon points={getHexPoints(60, 20, R)} fill={darkColor} />
+        <polygon points={getHexPoints(60, 20, R)} fill={darkColor} stroke="#007bff" strokeWidth="3" />
         <polygon points={getHexPoints(190, 20, R)} fill={lightColor} />
         <polygon points={getHexPoints(-5, 132.5, R)} fill={lightColor} />
         <polygon points={getHexPoints(125, 132.5, R)} fill={darkColor} />
@@ -66,7 +68,6 @@ const LoginPage = () => {
         <polygon points={getHexPoints(225, 217.5, R)} fill={darkColor} />
       </svg>
 
-      {/* Center Card */}
       <div className="login-card">
         <h1 className="login-title">SUNIL</h1>
         
@@ -98,12 +99,14 @@ const LoginPage = () => {
           <button type="submit" className="login-button">
             Login
           </button>
-        </form>
-      </div>
 
-      {/* Footer Text */}
-      <div className="varg-solutions">
-        VARG Solutions
+          <div className="signup-link-container">
+            {/* The onClick here uses the navigate function to change the URL to /signup */}
+            <span className="signup-link" onClick={() => navigate('/signup')}>
+              Click here to Sign Up
+            </span>
+          </div>
+        </form>
       </div>
     </div>
   );
