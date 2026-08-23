@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './SignupPage.css';
 
 // Generates points for a pointy-topped hexagon (Reused from Login)
@@ -9,6 +10,8 @@ const getHexPoints = (cx, cy, r) => {
 };
 
 const SignupPage = () => {
+  const navigate = useNavigate(); // Initialize the navigation hook
+
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -32,8 +35,11 @@ const SignupPage = () => {
       return;
     }
     
-    // This is where you will send the new user data to your Node/Express backend[cite: 4]
+    // This is where you will send the new user data to your Node/Express backend
     console.log('Registration submitted:', formData);
+
+    // Instantly navigate back to the login screen
+    navigate('/');
   };
 
   const R = 75; // Hexagon radius
