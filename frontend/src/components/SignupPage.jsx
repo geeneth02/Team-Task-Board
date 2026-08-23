@@ -1,19 +1,19 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import './LoginPage.css';
+import './SignupPage.css';
 
+// Generates points for a pointy-topped hexagon (Reused from Login)
 const getHexPoints = (cx, cy, r) => {
   const hw = (Math.sqrt(3) / 2) * r;
   const hh = r / 2;
   return `${cx},${cy - r} ${cx + hw},${cy - hh} ${cx + hw},${cy + hh} ${cx},${cy + r} ${cx - hw},${cy + hh} ${cx - hw},${cy - hh}`;
 };
 
-const LoginPage = () => {
-  const navigate = useNavigate(); // This is required to switch pages
-
+const SignupPage = () => {
   const [formData, setFormData] = useState({
-    name: '',
-    password: ''
+    firstName: '',
+    lastName: '',
+    password: '',
+    confirmPassword: ''
   });
 
   const handleChange = (e) => {
@@ -26,19 +26,25 @@ const LoginPage = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Login submitted:', formData);
-    navigate('/dashboard');
+    
+    if (formData.password !== formData.confirmPassword) {
+      alert("Passwords do not match!");
+      return;
+    }
+    
+    // This is where you will send the new user data to your Node/Express backend[cite: 4]
+    console.log('Registration submitted:', formData);
   };
 
-  const R = 75; 
+  const R = 75; // Hexagon radius
   const darkColor = "#021342";
   const lightColor = "#d6dadf";
 
   return (
-    <div className="login-page-container">
+    <div className="signup-page-container">
       {/* Top-Left Cluster */}
       <svg className="hex-cluster top-left-svg" viewBox="0 0 350 350">
-        <polygon points={getHexPoints(60, 20, R)} fill={darkColor} stroke="#007bff" strokeWidth="3" />
+        <polygon points={getHexPoints(60, 20, R)} fill={darkColor} />
         <polygon points={getHexPoints(190, 20, R)} fill={lightColor} />
         <polygon points={getHexPoints(-5, 132.5, R)} fill={lightColor} />
         <polygon points={getHexPoints(125, 132.5, R)} fill={darkColor} />
@@ -69,24 +75,37 @@ const LoginPage = () => {
         <polygon points={getHexPoints(225, 217.5, R)} fill={darkColor} />
       </svg>
 
-      <div className="login-card">
-        <h1 className="login-title">SUNIL</h1>
+      {/* Center Card */}
+      <div className="signup-card">
+        <h1 className="signup-title">Welcome!</h1>
         
-        <form onSubmit={handleSubmit} className="login-form">
+        <form onSubmit={handleSubmit} className="signup-form">
           <div className="input-group">
-            <label htmlFor="name">Name:</label>
+            <label htmlFor="firstName">First Name :</label>
             <input
               type="text"
-              id="name"
-              name="name"
-              value={formData.name}
+              id="firstName"
+              name="firstName"
+              value={formData.firstName}
               onChange={handleChange}
               required
             />
           </div>
 
           <div className="input-group">
-            <label htmlFor="password">Password :</label>
+            <label htmlFor="lastName">Last Name :</label>
+            <input
+              type="text"
+              id="lastName"
+              name="lastName"
+              value={formData.lastName}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div className="input-group">
+            <label htmlFor="password">Create a password :</label>
             <input
               type="password"
               id="password"
@@ -97,20 +116,30 @@ const LoginPage = () => {
             />
           </div>
 
-          <button type="submit" className="login-button">
-            Login
-          </button>
-
-          <div className="signup-link-container">
-            {/* The onClick here uses the navigate function to change the URL to /signup */}
-            <span className="signup-link" onClick={() => navigate('/signup')}>
-              Click here to Sign Up
-            </span>
+          <div className="input-group">
+            <label htmlFor="confirmPassword">Confirm Password :</label>
+            <input
+              type="password"
+              id="confirmPassword"
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              required
+            />
           </div>
+
+          <button type="submit" className="signup-button">
+            Sign UP
+          </button>
         </form>
+      </div>
+
+      {/* Footer Text */}
+      <div className="varg-solutions">
+        VARG Solutions
       </div>
     </div>
   );
 };
 
-export default LoginPage;
+export default SignupPage;

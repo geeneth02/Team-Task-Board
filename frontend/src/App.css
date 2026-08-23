@@ -1,0 +1,232 @@
+/* Reset and Base Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  background-color: #ffffff;
+}
+
+.app-container {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Sidebar Styles */
+.sidebar {
+  width: 260px;
+  background-color: #0B1941;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 20px 30px;
+  color: white;
+}
+
+.avatar-large {
+  width: 50px;
+  height: 50px;
+  background-color: #d9d9d9;
+  border-radius: 50%;
+}
+
+.sidebar-menu-container {
+  background-color: #ffffff;
+  flex: 1;
+  border-top-right-radius: 50px;
+  margin-right: 15px; 
+  /* Force absolutely zero padding on the sides */
+  padding: 30px 0 0 0 !important; 
+}
+
+.menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  /* Force zero padding and margins on the container */
+  padding: 0 !important; 
+  margin: 0 !important;
+  width: 100%;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 14px 20px 14px 30px; 
+  color: #333;
+  cursor: pointer;
+  font-weight: 500;
+  text-decoration: none;
+  border-radius: 0 30px 30px 0; 
+  width: 85%; 
+  /* Force the element to strictly hug the left side */
+  margin: 0 !important; 
+  box-sizing: border-box !important;
+  transition: all 0.2s ease;
+}
+.menu-item.active {
+  background-color: #0B1941;
+  color: white;
+}
+
+/* Optional: Adds a slight hover effect for the inactive items */
+.menu-item:hover:not(.active) {
+  background-color: #f0f4f8;
+}
+
+/* Header Styles */
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.top-header {
+  height: 70px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 0 30px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.bell-icon {
+  width: 32px;
+  height: 32px;
+  background-color: #8fa0e6;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.avatar-small {
+  width: 32px;
+  height: 32px;
+  background-color: #d9d9d9;
+  border-radius: 50%;
+}
+
+/* TaskBoard Styles */
+.board-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 0 20px 20px 0;
+}
+
+.board-tabs-bar {
+  background-color: #0B1941;
+  border-radius: 8px 8px 0 0;
+  height: 50px;
+  display: flex;
+  align-items: flex-end;
+  padding-left: 30px;
+  gap: 25px; /* Increased gap to accommodate the slant */
+}
+
+/* Dynamic Active Tab Polygon */
+/* Dynamic Active Tab Polygon (Symmetrical Trapezoid) */
+.tab-active {
+  /* Adjusted padding: less on top (8px), more on bottom (12px) to push text up */
+  padding: 8px 30px 12px 30px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: -1px; 
+  position: relative;
+  cursor: pointer;
+  z-index: 2; 
+}
+
+.tab-active::before {
+  content: '';
+  position: absolute;
+  /* Changed from 0 to -10px to stretch the shape taller */
+  top: -10px; 
+  right: -10px; 
+  bottom: 0;
+  left: -10px;
+  background-color: #f8f9fa;
+  transform: perspective(80px) rotateX(25deg);
+  transform-origin: bottom;
+  border-radius: 12px 12px 0 0; 
+  z-index: -1;
+}
+
+/* Remove the old .tab-active::after block entirely if it is still in your file! */
+
+/* Inactive Tab Pills */
+.tab-inactive {
+  background-color: white;
+  border-radius: 20px;
+  padding: 6px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+.badge {
+  color: white;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 12px;
+}
+
+.board-area {
+  background-color: #f8f9fa;
+  flex: 1;
+  border-radius: 0 0 8px 8px;
+  padding: 30px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 25px;
+  align-content: flex-start;
+  overflow-y: auto;
+}
+
+/* Footer Legend */
+.board-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 20px;
+  padding-top: 15px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.legend-box {
+  width: 15px;
+  height: 15px;
+  border-radius: 3px;
+}
