@@ -10,7 +10,7 @@ export default function Sidebar() {
     <div className="sidebar">
       <div className="sidebar-header">
         <div className="avatar-large"></div>
-        <h4>BLA BLA</h4>
+        <h4>ABC Holdings</h4>
       </div>
       
       <div className="sidebar-menu-container">
