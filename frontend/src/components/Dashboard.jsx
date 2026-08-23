@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+// 1. Import your friend's component
+import NotificationsPanel from './NotificationsPanel'; 
 import './Dashboard.css';
 
 const DashboardIcon = () => (
@@ -21,8 +23,20 @@ const FolderIcon = () => (
   </svg>
 );
 
+// New Bell Icon for the header
+const BellIcon = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1a202c" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+  </svg>
+);
+
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState('myWork');
+  
+  // 2. Add a state variable to control whether the popup is open or closed
+  const [showNotifications, setShowNotifications] = useState(false); 
+  
   const navigate = useNavigate();
 
   const tasks = [
@@ -52,12 +66,10 @@ export default function Dashboard() {
       <aside className="sidebar">
         <div className="profile-header">
           <div className="avatar-placeholder"></div>
-          <span className="profile-name">BLA BLA</span>
+          <span className="profile-name">ABC Holdings</span>
         </div>
 
         <div className="sidebar-white-card">
-          {/* Hamburger button removed from here */}
-
           <nav className="nav-menu">
             <button className="nav-btn active">
               <DashboardIcon />
@@ -81,18 +93,34 @@ export default function Dashboard() {
 
       {/* Main Viewport */}
       <div className="main-viewport">
-        <header className="top-navbar">
-          <div className="manager-profile">
-            <div className="manager-avatar"></div>
-            <div className="manager-info">
-              <span className="manager-title">Manager ˅</span>
-              <span className="manager-date">21/12/2026</span>
+        
+        {/* 3. Updated Header with the Bell Button */}
+        <header className="top-navbar" style={{ position: 'relative' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+            
+            <button 
+              onClick={() => setShowNotifications(!showNotifications)}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', position: 'relative', display: 'flex', alignItems: 'center' }}
+            >
+              <BellIcon />
+              {/* Optional tiny red dot indicating new notifications */}
+              <span style={{ position: 'absolute', top: '0px', right: '2px', width: '8px', height: '8px', backgroundColor: '#e53e3e', borderRadius: '50%' }}></span>
+            </button>
+
+            <div className="manager-profile">
+              <div className="manager-avatar"></div>
+              <div className="manager-info">
+                <span className="manager-title">Manager ˅</span>
+                <span className="manager-date">21/12/2026</span>
+              </div>
             </div>
           </div>
+
+          {/* 4. Render the panel only if the bell is clicked */}
+          {showNotifications && <NotificationsPanel />}
         </header>
 
         <main className="content-container">
-          {/* Foldered Tab Bar */}
           <div className="tab-header">
             <button
               className={`tab-link ${activeTab === 'myWork' ? 'active' : ''}`}
@@ -108,7 +136,6 @@ export default function Dashboard() {
             </button>
           </div>
 
-          {/* Card Canvas */}
           <div className="grid-canvas">
             {activeTab === 'myWork' && (
               <>
