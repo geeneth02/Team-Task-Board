@@ -2,20 +2,20 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Dashboard from './components/Dashboard';
 import LoginPage from './components/LoginPage';
-import AllWorks from './components/AllWorks';
+import TaskBoard from './components/TaskBoard'; 
+// 1. Import your new Assign component
+import Assign from './components/Assign'; 
 
 function App() {
   return (
     <div>
       <Routes>
-        {/* Default login screen */}
         <Route path="/" element={<LoginPage />} />
-        
-        {/* Amaya's dashboard screen */}
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/all-works" element={<TaskBoard />} />
         
-        {/* Vihanga's all works screen */}
-        <Route path="/all-works" element={<AllWorks />} />
+        {/* 2. Render your Assign component here */}
+        <Route path="/assign" element={<Assign />} />
       </Routes>
     </div>
   );

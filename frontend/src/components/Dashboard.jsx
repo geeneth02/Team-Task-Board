@@ -63,14 +63,14 @@ export default function Dashboard() {
               <DashboardIcon />
               <span>DashBoard</span>
             </button>
-            <button className="nav-btn">
-              <AssignIcon />
-              <span>Assign</span>
-            </button>
-            <button className="nav-btn">
-              <FolderIcon />
-              <span>All Works</span>
-            </button>
+            <button className="nav-btn" onClick={() => navigate('/assign')}>
+  <AssignIcon />
+  <span>Assign</span>
+</button>
+            <button className="nav-btn" onClick={() => navigate('/all-works')}>
+  <FolderIcon />
+  <span>All Works</span>
+</button>
           </nav>
 
           <div className="sidebar-bottom">
