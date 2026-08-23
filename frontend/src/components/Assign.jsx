@@ -81,17 +81,20 @@ export default function Assign() {
             21/12/2026
           </div>
           <div className="manager-profile">
-            <button style={{ 
-              backgroundColor: '#030b2e', color: 'white', padding: '8px 16px', 
-              borderRadius: '24px', border: 'none', display: 'flex', alignItems: 'center', 
-              gap: '8px', fontWeight: '600', cursor: 'pointer', marginRight: '15px' 
-            }}>
-              <span style={{ 
-                backgroundColor: 'white', color: '#030b2e', borderRadius: '50%', 
-                width: '18px', height: '18px', display: 'flex', alignItems: 'center', 
-                justifyContent: 'center', fontSize: '16px', fontWeight: 'bold' 
-              }}>+</span> Assign
-            </button>
+           <button 
+  onClick={() => navigate('/add-task')}
+  style={{ 
+    backgroundColor: '#030b2e', color: 'white', padding: '8px 16px', 
+    borderRadius: '24px', border: 'none', display: 'flex', alignItems: 'center', 
+    gap: '8px', fontWeight: '600', cursor: 'pointer', marginRight: '15px' 
+  }}
+>
+  <span style={{ 
+    backgroundColor: 'white', color: '#030b2e', borderRadius: '50%', 
+    width: '18px', height: '18px', display: 'flex', alignItems: 'center', 
+    justifyContent: 'center', fontSize: '16px', fontWeight: 'bold' 
+  }}>+</span> Assign
+</button>
             <div className="manager-avatar"></div>
             <div className="manager-info">
               <span className="manager-title" style={{fontWeight: '500'}}>Manager ˅</span>

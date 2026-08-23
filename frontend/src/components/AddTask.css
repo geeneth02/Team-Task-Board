@@ -1,0 +1,202 @@
+/* Centers the card on a full-page light background */
+.page-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #d1d5db; 
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  padding: 20px;
+}
+
+/* Reduced max-width and padding to shrink the card */
+.form-card {
+  background-color: #ffffff;
+  width: 100%;
+  max-width: 420px; /* Reduced from 480px */
+  border-radius: 16px; 
+  padding: 24px 28px; /* Reduced from 30px 32px */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  box-sizing: border-box;
+}
+
+/* Reduced title margins and font size */
+.form-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #000000;
+}
+
+/* Tightened gap between form sections */
+.form-group {
+  margin-bottom: 14px; 
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #111111;
+  margin-bottom: 6px;
+}
+
+/* Inputs, Selects, and Mock Selects */
+.form-input {
+  border: 1px solid #c8c8c8;
+  border-radius: 8px;
+  padding: 8px 12px; /* Slightly tighter padding */
+  font-size: 13px;
+  background-color: #ffffff;
+  width: 100%;
+  box-sizing: border-box;
+  color: #333;
+  outline: none;
+}
+
+/* Specific styling to match the thin grey text in description */
+.text-input::placeholder {
+  color: #999;
+}
+
+.form-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px; /* Tighter gap between columns */
+}
+
+.half-width {
+  flex: 1;
+}
+
+/* Custom dropdown appearance */
+.custom-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23333%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px top 50%;
+  background-size: 10px auto;
+  cursor: pointer;
+}
+
+/* Assignee tags */
+.mock-multi-select {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 38px;
+  padding: 4px 12px;
+}
+
+.tags-container {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.assignee-tag {
+  display: flex;
+  align-items: center;
+  background-color: #f0f0f0;
+  padding: 4px 8px;
+  border-radius: 16px;
+  font-size: 11px;
+  color: #333;
+  border: 1px solid #e0e0e0;
+}
+
+.avatar {
+  font-size: 13px;
+  margin-right: 4px;
+}
+
+.close-x {
+  margin-left: 6px;
+  color: #888;
+  cursor: pointer;
+  font-size: 10px;
+}
+
+.dropdown-arrow {
+  color: #666;
+  font-size: 16px;
+  line-height: 1;
+}
+
+/* Date Input Wrapper with Icon */
+.date-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.date-input-wrapper .form-input {
+  padding-right: 30px; 
+}
+
+.calendar-icon {
+  position: absolute;
+  right: 10px;
+  font-size: 14px;
+  color: #666;
+  pointer-events: none;
+}
+
+/* Priority Chips */
+.priority-chips {
+  display: flex;
+  gap: 6px;
+  height: 36px;
+  align-items: center;
+}
+
+.chip {
+  padding: 4px 10px;
+  border-radius: 6px; 
+  border: none;
+  background-color: #f1f5f9;
+  color: #555;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.chip.active {
+  background-color: #c0c5ea; 
+  color: #1a1a1a;
+  font-weight: 500;
+}
+
+/* Action Buttons */
+.form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.btn-primary {
+  background-color: #0a1128; 
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-secondary {
+  background-color: #e5e5e5;
+  color: #111;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 13px;
+}

@@ -56,7 +56,7 @@ export default function Dashboard() {
         </div>
 
         <div className="sidebar-white-card">
-          <button className="hamburger-btn" aria-label="Toggle menu">☰</button>
+          {/* Hamburger button removed from here */}
 
           <nav className="nav-menu">
             <button className="nav-btn active">
@@ -64,13 +64,13 @@ export default function Dashboard() {
               <span>DashBoard</span>
             </button>
             <button className="nav-btn" onClick={() => navigate('/assign')}>
-  <AssignIcon />
-  <span>Assign</span>
-</button>
+              <AssignIcon />
+              <span>Assign</span>
+            </button>
             <button className="nav-btn" onClick={() => navigate('/all-works')}>
-  <FolderIcon />
-  <span>All Works</span>
-</button>
+              <FolderIcon />
+              <span>All Works</span>
+            </button>
           </nav>
 
           <div className="sidebar-bottom">
