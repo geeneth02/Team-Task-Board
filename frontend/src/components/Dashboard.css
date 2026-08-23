@@ -1,0 +1,294 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+body, html, #root {
+  width: 100%;
+  height: 100vh;
+  background-color: #030b2e;
+  overflow: hidden;
+}
+
+.dashboard-container {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  background-color: #030b2e;
+}
+
+/* Sidebar Styling */
+.sidebar {
+  width: 240px;
+  display: flex;
+  flex-direction: column;
+  background-color: #030b2e;
+  flex-shrink: 0;
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 24px 20px;
+}
+
+.avatar-placeholder {
+  width: 48px;
+  height: 48px;
+  background-color: #d9d9d9;
+  border-radius: 50%;
+}
+
+.profile-name {
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.sidebar-white-card {
+  flex: 1;
+  background-color: #ffffff;
+  border-top-right-radius: 40px;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 18px;
+}
+
+.hamburger-btn {
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  margin-bottom: 28px;
+  align-self: flex-start;
+  color: #1a202c;
+  padding-left: 4px;
+}
+
+.nav-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+}
+
+.nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 18px;
+  border-radius: 12px;
+  border: none;
+  background: transparent;
+  color: #1a202c;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+}
+
+.nav-btn.active {
+  background-color: #030b2e;
+  color: #ffffff;
+}
+
+.sidebar-bottom {
+  padding-bottom: 10px;
+}
+
+.logout-link {
+  background: none;
+  border: none;
+  color: #e53e3e;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  padding-left: 8px;
+}
+
+/* Main Area Layout */
+.main-viewport {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.top-navbar {
+  height: 70px;
+  background-color: #ffffff;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding-right: 40px;
+  flex-shrink: 0;
+}
+
+.manager-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.manager-avatar {
+  width: 40px;
+  height: 40px;
+  background-color: #d9d9d9;
+  border-radius: 50%;
+}
+
+.manager-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.manager-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a202c;
+}
+
+.manager-date {
+  font-size: 11px;
+  color: #718096;
+}
+
+/* Content Viewport */
+.content-container {
+  flex: 1;
+  background-color: #030b2e;
+  display: flex;
+  flex-direction: column;
+  padding: 16px 30px 30px 30px;
+  overflow: hidden;
+}
+
+/* Shifted Folder Tabs */
+.tab-header {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  padding-left: 28px; /* Offset from the left edge */
+  position: relative;
+  z-index: 2;
+}
+
+.tab-link {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 12px 28px;
+  cursor: pointer;
+}
+
+.tab-link.active {
+  background-color: #eaedf1;
+  color: #030b2e;
+  padding: 14px 44px 10px 44px;
+  border-top-left-radius: 18px;
+  border-top-right-radius: 18px;
+  transform: perspective(30px) rotateX(12deg);
+  transform-origin: bottom center;
+  margin-bottom: -1px;
+}
+
+/* Canvas Grid Area */
+.grid-canvas {
+  flex: 1;
+  background-color: #eaedf1;
+  border-radius: 20px;
+  padding: 20px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: 135px;
+  gap: 16px;
+  overflow-y: auto;
+  position: relative;
+  z-index: 1;
+}
+
+/* Task Cards */
+.task-card {
+  background-color: #f2f4f7;
+  border: 1px solid #d0d5dd;
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  gap: 12px;
+  align-items: stretch;
+}
+
+.task-card.placeholder {
+  background-color: #f2f4f7;
+  border: 1px solid #d0d5dd;
+}
+
+.accent-bar {
+  width: 4px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.accent-bar.red { background-color: #d92d20; }
+.accent-bar.green { background-color: #12b76a; }
+
+.task-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  flex: 1;
+}
+
+.task-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #101828;
+  margin: 0 0 2px 0;
+  line-height: 1.2;
+}
+
+.task-subtext {
+  font-size: 11px;
+  color: #667085;
+  margin-bottom: 8px;
+}
+
+.assignee-tag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.grey-dot {
+  width: 14px;
+  height: 14px;
+  background-color: #d0d5dd;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.assignee-text {
+  font-size: 12px;
+  font-weight: 500;
+  color: #344054;
+}
+
+.date-text {
+  font-size: 11px;
+  color: #98a2b3;
+}
+
+.empty-view {
+  grid-column: span 3;
+  text-align: center;
+  padding: 40px;
+  color: #718096;
+}
