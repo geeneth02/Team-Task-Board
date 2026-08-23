@@ -2,26 +2,22 @@ import React, { useState } from 'react';
 import TaskCard from './TaskCard';
 
 export default function TaskBoard() {
-  // 1. Set up state to track the active tab. Default is 'all'.
   const [activeTab, setActiveTab] = useState('all');
 
-  // Mock data with updated assignees
   const tasks = [
     { id: 1, title: 'API integration', subtitle: 'with consultation', assignee: 'Amaya', type: 'todo' },
-    { id: 2, title: 'API integration', assignee: 'Geeneth', type: 'todo' },
-    { id: 3, title: 'API integration', assignee: 'Vihanga', type: 'progress' },
+    { id: 2, title: 'API integration', type: 'todo' },
+    { id: 3, title: 'API integration', type: 'progress' },
     { id: 4, title: 'API integration', type: 'progress' },
     { id: 5, title: 'UI / UX Design', type: 'done' },
     { id: 6, title: 'UI / UX Design', type: 'done' },
   ];
 
-  // 2. Filter the tasks based on the active state
   const filteredTasks = tasks.filter(task => {
     if (activeTab === 'all') return true;
     return task.type === activeTab;
   });
 
-  // 3. Dynamically calculate the numbers in the badges
   const counts = {
     all: tasks.length,
     todo: tasks.filter(t => t.type === 'todo').length,
@@ -29,57 +25,43 @@ export default function TaskBoard() {
     done: tasks.filter(t => t.type === 'done').length,
   };
 
+  // DRY Configuration for tabs
+  // DRY Configuration for tabs
+  const tabConfigs = [
+    // Changed inactiveColor from '#ffffff' to '#2b74e2'
+    { id: 'all', label: 'All', activeColor: '#2b74e2', inactiveColor: '#2b74e2', badgeBg: '#8fa0e6' },
+    { id: 'todo', label: 'To-do', activeColor: '#D94545', inactiveColor: '#D94545', badgeBg: '#D94545' },
+    { id: 'progress', label: 'In-progress', activeColor: '#ECA336', inactiveColor: '#ECA336', badgeBg: '#ECA336' },
+    { id: 'done', label: 'Done', activeColor: '#5FAD77', inactiveColor: '#5FAD77', badgeBg: '#5FAD77' }
+  ];
   return (
     <div className="board-container">
       {/* Top Tabs Bar */}
       <div className="board-tabs-bar">
-        {/* Added onClick handlers and pointer cursors to make them clickable */}
-        <div 
-          className="tab-all" 
-          style={{ cursor: 'pointer', opacity: activeTab === 'all' ? 1 : 0.7 }}
-          onClick={() => setActiveTab('all')}
-        >
-          All <span className="badge" style={{ backgroundColor: '#8fa0e6' }}>{counts.all}</span>
-        </div>
-        
-        <div 
-          className="tab-pill" 
-          style={{ 
-            color: '#D94545', 
-            cursor: 'pointer', 
-            border: activeTab === 'todo' ? '1px solid #D94545' : '1px solid transparent' 
-          }}
-          onClick={() => setActiveTab('todo')}
-        >
-          To-do <span className="badge" style={{ backgroundColor: '#D94545' }}>{counts.todo}</span>
-        </div>
-        
-        <div 
-          className="tab-pill" 
-          style={{ 
-            color: '#ECA336', 
-            cursor: 'pointer',
-            border: activeTab === 'progress' ? '1px solid #ECA336' : '1px solid transparent'
-          }}
-          onClick={() => setActiveTab('progress')}
-        >
-          In-progress <span className="badge" style={{ backgroundColor: '#ECA336' }}>{counts.progress}</span>
-        </div>
-        
-        <div 
-          className="tab-pill" 
-          style={{ 
-            color: '#5FAD77', 
-            cursor: 'pointer',
-            border: activeTab === 'done' ? '1px solid #5FAD77' : '1px solid transparent'
-          }}
-          onClick={() => setActiveTab('done')}
-        >
-          Done <span className="badge" style={{ backgroundColor: '#5FAD77' }}>{counts.done}</span>
-        </div>
+        {tabConfigs.map(tab => {
+          const isActive = activeTab === tab.id;
+          
+          return (
+            <div 
+              key={tab.id}
+              className={isActive ? "tab-active" : "tab-inactive"} 
+              style={{ 
+                color: isActive ? tab.activeColor : tab.inactiveColor,
+                // Inactive tabs get a border matching their color; active tabs get no border
+                border: isActive ? 'none' : `1px solid ${tab.inactiveColor}`
+              }}
+              onClick={() => setActiveTab(tab.id)}
+            >
+              {tab.label} 
+              <span className="badge" style={{ backgroundColor: tab.badgeBg }}>
+                {counts[tab.id]}
+              </span>
+            </div>
+          );
+        })}
       </div>
 
-      {/* Main Board Area - Now mapping over filteredTasks instead of all tasks */}
+      {/* Main Board Area */}
       <div className="board-area">
         {filteredTasks.map(task => (
           <TaskCard key={task.id} {...task} />
