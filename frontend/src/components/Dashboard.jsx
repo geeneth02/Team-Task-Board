@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './Dashboard.css';
 
 const DashboardIcon = () => (
@@ -22,6 +23,7 @@ const FolderIcon = () => (
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState('myWork');
+  const navigate = useNavigate();
 
   const tasks = [
     {
@@ -72,7 +74,7 @@ export default function Dashboard() {
           </nav>
 
           <div className="sidebar-bottom">
-            <button className="logout-link">Logout</button>
+            <button className="logout-link" onClick={() => navigate('/')}>Logout</button>
           </div>
         </div>
       </aside>

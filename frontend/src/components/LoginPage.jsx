@@ -27,6 +27,7 @@ const LoginPage = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log('Login submitted:', formData);
+    navigate('/dashboard');
   };
 
   const R = 75; 
