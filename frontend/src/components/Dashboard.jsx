@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-// 1. Import your friend's component
 import NotificationsPanel from './NotificationsPanel'; 
+// 1. Import your friend's Task Popup component
+import TaskPopup from './taskUI'; 
 import './Dashboard.css';
 
 const DashboardIcon = () => (
@@ -23,7 +24,6 @@ const FolderIcon = () => (
   </svg>
 );
 
-// New Bell Icon for the header
 const BellIcon = () => (
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1a202c" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
@@ -33,10 +33,11 @@ const BellIcon = () => (
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState('myWork');
-  
-  // 2. Add a state variable to control whether the popup is open or closed
   const [showNotifications, setShowNotifications] = useState(false); 
   
+  // 2. Add state to track if the task popup is open
+  const [showTaskPopup, setShowTaskPopup] = useState(false);
+
   const navigate = useNavigate();
 
   const tasks = [
@@ -93,17 +94,13 @@ export default function Dashboard() {
 
       {/* Main Viewport */}
       <div className="main-viewport">
-        
-        {/* 3. Updated Header with the Bell Button */}
         <header className="top-navbar" style={{ position: 'relative' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-            
             <button 
               onClick={() => setShowNotifications(!showNotifications)}
               style={{ background: 'none', border: 'none', cursor: 'pointer', position: 'relative', display: 'flex', alignItems: 'center' }}
             >
               <BellIcon />
-              {/* Optional tiny red dot indicating new notifications */}
               <span style={{ position: 'absolute', top: '0px', right: '2px', width: '8px', height: '8px', backgroundColor: '#e53e3e', borderRadius: '50%' }}></span>
             </button>
 
@@ -116,7 +113,6 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* 4. Render the panel only if the bell is clicked */}
           {showNotifications && <NotificationsPanel />}
         </header>
 
@@ -140,7 +136,13 @@ export default function Dashboard() {
             {activeTab === 'myWork' && (
               <>
                 {tasks.map((task) => (
-                  <div className="task-card" key={task.id}>
+                  <div 
+                    className="task-card" 
+                    key={task.id}
+                    // 3. Make the card clickable and trigger the popup
+                    onClick={() => setShowTaskPopup(true)}
+                    style={{ cursor: 'pointer' }}
+                  >
                     <div className={`accent-bar ${task.status}`}></div>
                     <div className="task-content">
                       <h3 className="task-title">{task.title}</h3>
@@ -166,6 +168,9 @@ export default function Dashboard() {
           </div>
         </main>
       </div>
+
+      {/* 4. Render the Task Popup overlay if state is true */}
+      {showTaskPopup && <TaskPopup onClose={() => setShowTaskPopup(false)} />}
     </div>
   );
 }

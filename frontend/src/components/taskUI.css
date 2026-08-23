@@ -176,14 +176,12 @@
   color: #333;
 }
 
-.desc-comments-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 32px;
-  margin-bottom: 32px;
+/* Description Area */
+.description-area {
+  margin-bottom: 24px;
 }
 
-.desc-comments-grid h4 {
+.description-area h4 {
   margin: 0 0 8px 0;
   color: #333;
   font-weight: 500;
@@ -194,18 +192,32 @@
   font-size: 13px;
   color: #111;
   margin-top: 4px;
+  line-height: 1.5;
 }
 
-.comments-area {
+/* Bottom Split Layout */
+.bottom-controls-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 32px;
+}
+
+/* Left side: Comments Box and Button */
+.left-comments {
   display: flex;
   flex-direction: column;
+  flex: 1;
 }
 
-.comments-area h4 {
-  text-align: center;
+.left-comments h4 {
+  margin: 0 0 8px 0;
+  color: #333;
+  font-weight: 500;
+  font-size: 15px;
 }
 
-.comments-area textarea {
+.left-comments textarea {
   width: 100%;
   border: 1px solid #ccc;
   border-radius: 12px;
@@ -215,18 +227,55 @@
   outline: none;
   font-family: inherit;
   box-sizing: border-box;
+  margin-bottom: 16px;
 }
 
-.comments-area textarea:focus {
+.left-comments textarea:focus {
   border-color: #0a192f;
 }
 
-.button-group {
+.add-comment-btn {
+  align-self: flex-start;
+}
+
+/* Right side: Status Controls */
+.right-actions {
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
   gap: 16px;
 }
 
+.status-selector-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #f1f5f9;
+  border: 1px solid #d1d5db;
+  padding: 8px 14px;
+  border-radius: 8px;
+}
+
+.status-indicator {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  transition: background-color 0.3s ease;
+}
+
+.status-dropdown {
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  color: #333;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  padding-right: 8px;
+}
+
+/* Buttons */
 .btn {
   padding: 10px 24px;
   border-radius: 8px;

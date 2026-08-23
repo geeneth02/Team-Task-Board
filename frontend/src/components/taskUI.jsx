@@ -1,7 +1,18 @@
-import React from 'react';
-import './taskUI.css'; // Importing the new CSS file
+import React, { useState } from 'react';
+import './taskUI.css'; 
 
 const TaskPopup = ({ onClose }) => {
+  const [taskStatus, setTaskStatus] = useState('Ongoing');
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'Not Started': return '#ef4444'; // Red
+      case 'Ongoing': return '#facc15';     // Yellow
+      case 'Finished': return '#22c55e';    // Green
+      default: return '#ccc';
+    }
+  };
+
   return (
     <div className="task-popup-overlay">
       <div className="task-popup-container">
@@ -10,7 +21,7 @@ const TaskPopup = ({ onClose }) => {
         <div className="task-header">
           <h2>Task Name :</h2>
           <h2 className="task-title">UI design</h2>
-          <div className="status-dot"></div>
+          <div className="status-dot" style={{ backgroundColor: getStatusColor(taskStatus) }}></div>
         </div>
         <hr className="task-divider" />
 
@@ -67,34 +78,52 @@ const TaskPopup = ({ onClose }) => {
           </div>
           <div className="status-block">
             <span className="status-text">Status:</span>
-            <div className="status-small-dot"></div>
-            <span className="status-text">Ongoing</span>
+            <div className="status-small-dot" style={{ backgroundColor: getStatusColor(taskStatus) }}></div>
+            <span className="status-text">{taskStatus}</span>
           </div>
         </div>
 
-        {/* Description & Comments */}
-        <div className="desc-comments-grid">
-          <div>
-            <h4>Description</h4>
-            <p className="desc-text">Design the final pages</p>
-          </div>
-          <div className="comments-area">
+        {/* Description Section */}
+        <div className="description-area">
+          <h4>Description</h4>
+          <p className="desc-text">Design the final pages</p>
+        </div>
+
+        {/* Bottom Area: Comments (Left) & Controls (Right) */}
+        <div className="bottom-controls-container">
+          
+          {/* Left Bottom: Comment Box & Add Comment Button */}
+          <div className="left-comments">
             <h4>Comments</h4>
             <textarea
               rows="3"
               placeholder="Use pastel colors"
             ></textarea>
+            <button className="btn btn-outline add-comment-btn">
+              Add comment
+            </button>
           </div>
-        </div>
 
-        {/* Buttons */}
-        <div className="button-group">
-          <button className="btn btn-outline" onClick={onClose}>
-            Add comment
-          </button>
-          <button className="btn btn-solid">
-            Update Status
-          </button>
+          {/* Right Bottom: Status Selector & Update Button */}
+          <div className="right-actions">
+            <div className="status-selector-container">
+              <div className="status-indicator" style={{ backgroundColor: getStatusColor(taskStatus) }}></div>
+              <select 
+                value={taskStatus} 
+                onChange={(e) => setTaskStatus(e.target.value)} 
+                className="status-dropdown"
+              >
+                <option value="Not Started">Not Started</option>
+                <option value="Ongoing">Ongoing</option>
+                <option value="Finished">Finished</option>
+              </select>
+            </div>
+            
+            <button className="btn btn-solid" onClick={onClose}>
+              Update Status
+            </button>
+          </div>
+
         </div>
         
       </div>
