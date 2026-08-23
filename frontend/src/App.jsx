@@ -1,9 +1,10 @@
-import LoginPage from './components/LoginPage';
+import AddTask from './components/AddTask';
+
 
 function App() {
   return (
     <div>
-      <LoginPage />
+      <AddTask />
     </div>
   );
 }
