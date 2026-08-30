@@ -3,8 +3,9 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config();
 
-// 1. Import your auth routes
+// 1. Import your routes
 const authRoutes = require('./routes/authRoutes');
+const taskRoutes = require('./routes/taskRoutes'); // Added task routes import
 
 // Initialize Express
 const app = express();
@@ -15,6 +16,7 @@ app.use(express.json()); // Parses incoming JSON data
 
 // 2. Connect your routes to the app
 app.use('/api/auth', authRoutes);
+app.use('/api/tasks', taskRoutes); // Connected task routes to the /api/tasks endpoint
 
 // Basic test route
 app.get('/', (req, res) => {
