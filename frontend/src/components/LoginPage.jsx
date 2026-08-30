@@ -9,7 +9,7 @@ const getHexPoints = (cx, cy, r) => {
 };
 
 const LoginPage = () => {
-  const navigate = useNavigate(); // This is required to switch pages
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     name: '',
@@ -24,10 +24,49 @@ const LoginPage = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Login submitted:', formData);
-    navigate('/dashboard');
+    
+    try {
+      const response = await fetch('http://localhost:5000/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.name, 
+          password: formData.password
+        })
+      });
+
+      const data = await response.json();
+      
+      // Look at your browser's console after logging in to see this!
+      console.log("Backend response:", data);
+
+      if (response.ok) {
+        localStorage.setItem('token', data.token); 
+        
+        // Try to pull the registered name directly from your database's response
+        let dbName = formData.name; // Fallback to what was typed
+        
+        // Check various common ways your backend might send the user data back
+        if (data.user && data.user.firstName) {
+            dbName = data.user.lastName ? `${data.user.firstName} ${data.user.lastName}` : data.user.firstName;
+        } else if (data.user && data.user.name) {
+            dbName = data.user.name;
+        } else if (data.name) {
+            dbName = data.name;
+        }
+
+        // Save the real database name to memory so Dashboard can use it
+        localStorage.setItem('userName', dbName); 
+        navigate('/dashboard');
+      } else {
+        alert(data.message || 'Login failed: Invalid credentials');
+      }
+    } catch (error) {
+      console.error('Error during login:', error);
+      alert('Unable to connect to the server.');
+    }
   };
 
   const R = 75; 
@@ -102,7 +141,6 @@ const LoginPage = () => {
           </button>
 
           <div className="signup-link-container">
-            {/* The onClick here uses the navigate function to change the URL to /signup */}
             <span className="signup-link" onClick={() => navigate('/signup')}>
               Click here to Sign Up
             </span>

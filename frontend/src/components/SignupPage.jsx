@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './SignupPage.css';
 
-// Generates points for a pointy-topped hexagon (Reused from Login)
 const getHexPoints = (cx, cy, r) => {
   const hw = (Math.sqrt(3) / 2) * r;
   const hh = r / 2;
@@ -10,11 +9,12 @@ const getHexPoints = (cx, cy, r) => {
 };
 
 const SignupPage = () => {
-  const navigate = useNavigate(); // Initialize the navigation hook
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
+    jobRole: '', // Starts empty so the user is forced to select from the dropdown
     password: '',
     confirmPassword: ''
   });
@@ -27,7 +27,7 @@ const SignupPage = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (formData.password !== formData.confirmPassword) {
@@ -35,20 +35,38 @@ const SignupPage = () => {
       return;
     }
     
-    // This is where you will send the new user data to your Node/Express backend
-    console.log('Registration submitted:', formData);
+    try {
+      const response = await fetch('http://localhost:5000/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          jobRole: formData.jobRole,
+          password: formData.password
+        })
+      });
 
-    // Instantly navigate back to the login screen
-    navigate('/');
+      const data = await response.json();
+
+      if (response.ok) {
+        alert('Registration successful! Please log in.');
+        navigate('/');
+      } else {
+        alert(data.message || 'Registration failed');
+      }
+    } catch (error) {
+      console.error('Error during registration:', error);
+      alert('Unable to connect to the server.');
+    }
   };
 
-  const R = 75; // Hexagon radius
+  const R = 75; 
   const darkColor = "#021342";
   const lightColor = "#d6dadf";
 
   return (
     <div className="signup-page-container">
-      {/* Top-Left Cluster */}
       <svg className="hex-cluster top-left-svg" viewBox="0 0 350 350">
         <polygon points={getHexPoints(60, 20, R)} fill={darkColor} />
         <polygon points={getHexPoints(190, 20, R)} fill={lightColor} />
@@ -58,7 +76,6 @@ const SignupPage = () => {
         <polygon points={getHexPoints(190, 245, R)} fill={lightColor} />
       </svg>
 
-      {/* Top-Right Cluster */}
       <svg className="hex-cluster top-right-svg" viewBox="0 0 350 350">
         <polygon points={getHexPoints(160, 20, R)} fill={lightColor} />
         <polygon points={getHexPoints(290, 20, R)} fill={lightColor} />
@@ -67,21 +84,18 @@ const SignupPage = () => {
         <polygon points={getHexPoints(160, 245, R)} fill={lightColor} />
       </svg>
 
-      {/* Bottom-Left Cluster */}
       <svg className="hex-cluster bottom-left-svg" viewBox="0 0 350 350">
         <polygon points={getHexPoints(125, 105, R)} fill={lightColor} />
         <polygon points={getHexPoints(60, 217.5, R)} fill={darkColor} />
         <polygon points={getHexPoints(190, 217.5, R)} fill={lightColor} />
       </svg>
 
-      {/* Bottom-Right Cluster */}
       <svg className="hex-cluster bottom-right-svg" viewBox="0 0 350 350">
         <polygon points={getHexPoints(160, 105, R)} fill={lightColor} />
         <polygon points={getHexPoints(290, 105, R)} fill={lightColor} />
         <polygon points={getHexPoints(225, 217.5, R)} fill={darkColor} />
       </svg>
 
-      {/* Center Card */}
       <div className="signup-card">
         <h1 className="signup-title">Welcome!</h1>
         
@@ -108,6 +122,28 @@ const SignupPage = () => {
               onChange={handleChange}
               required
             />
+          </div>
+
+          <div className="input-group">
+            <label htmlFor="jobRole">Job Role :</label>
+            <select
+              id="jobRole"
+              name="jobRole"
+              value={formData.jobRole}
+              onChange={handleChange}
+              required
+              style={{ width: '100%', padding: '8px', marginTop: '5px', borderRadius: '4px', border: '1px solid #ccc' }}
+            >
+              <option value="" disabled>Select a role</option>
+              <option value="Frontend Developer">Frontend Developer</option>
+              <option value="Backend Developer">Backend Developer</option>
+              <option value="Full Stack Developer">Full Stack Developer</option>
+              <option value="UI/UX Designer">UI/UX Designer</option>
+              <option value="Data Scientist">Data Scientist</option>
+              <option value="Data Analyst">Data Analyst</option>
+              <option value="QA Engineer">QA Engineer</option>
+              <option value="Project Manager">Project Manager</option>
+            </select>
           </div>
 
           <div className="input-group">
@@ -140,10 +176,7 @@ const SignupPage = () => {
         </form>
       </div>
 
-      {/* Footer Text */}
-      <div className="varg-solutions">
-        VARG Solutions
-      </div>
+    
     </div>
   );
 };
