@@ -8,17 +8,17 @@ const generateToken = (id) => {
 
 exports.register = async (req, res) => {
   try {
-    const { firstName, lastName, password } = req.body;
+    const { firstName, jobRole, lastName, password } = req.body;
 
     const existingUser = await User.findOne({ firstName });
     if (existingUser) {
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    // Let the User model pre-save hook handle the hashing
     const user = await User.create({ 
       firstName, 
       lastName, 
+      jobRole,
       password 
     });
 
@@ -47,19 +47,54 @@ exports.login = async (req, res) => {
 
     res.json({
       message: 'Login successful',
-      token: generateToken(user._id)
+      token: generateToken(user._id),
+      user: {
+        _id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        jobRole: user.jobRole
+      }
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-// NEW: Get all registered users for the dropdown
 exports.getAllUsers = async (req, res) => {
   try {
-    // We only need the first and last names
     const users = await User.find({}, 'firstName lastName'); 
     res.status(200).json(users);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// FIXED: Using 'jobRole' to match the database schema
+exports.updateProfile = async (req, res) => {
+  try {
+    const { firstName, lastName, jobRole, profilePhoto } = req.body;
+    
+    const updatedUser = await User.findByIdAndUpdate(
+      req.params.id, 
+      { firstName, lastName, jobRole, profilePhoto },
+      { new: true, runValidators: true } 
+    ).select('-password'); 
+    
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.updatePassword = async (req, res) => {
+  try {
+    const { newPassword } = req.body;
+    
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    await User.findByIdAndUpdate(req.params.id, { password: hashedPassword });
+    res.status(200).json({ message: 'Password updated successfully' });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

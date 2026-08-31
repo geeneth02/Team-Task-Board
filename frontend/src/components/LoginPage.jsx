@@ -28,7 +28,7 @@ const LoginPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true); // From main: Starts the loading spinner
+    setLoading(true); 
 
     try {
       const response = await fetch('http://localhost:5000/api/auth/login', {
@@ -41,9 +41,6 @@ const LoginPage = () => {
       });
 
       const data = await response.json();
-      
-      // From auth-fix: Helpful for debugging
-      console.log("Backend response:", data);
 
       if (!response.ok) {
         alert(data.message || 'Login failed: Invalid credentials');
@@ -54,19 +51,33 @@ const LoginPage = () => {
       // 1. Store the token
       localStorage.setItem('token', data.token); 
       
-      // 2. From auth-fix: Pull the registered name directly from the database response
+      // 2. Pull the registered name AND role directly from the database response
       let dbName = formData.name; 
+      let dbRole = 'Member'; // Fallback role
       
-      if (data.user && data.user.firstName) {
-          dbName = data.user.lastName ? `${data.user.firstName} ${data.user.lastName}` : data.user.firstName;
-      } else if (data.user && data.user.name) {
-          dbName = data.user.name;
-      } else if (data.name) {
-          dbName = data.name;
+      if (data.user) {
+          if (data.user.firstName) {
+              dbName = data.user.lastName ? `${data.user.firstName} ${data.user.lastName}` : data.user.firstName;
+          } else if (data.user.name) {
+              dbName = data.user.name;
+          }
+          // Grab the role (checking both jobRole and role depending on your backend schema)
+          if (data.user.jobRole) dbRole = data.user.jobRole;
+          else if (data.user.role) dbRole = data.user.role;
+      } else {
+          if (data.name) dbName = data.name;
+          if (data.jobRole) dbRole = data.jobRole;
+          else if (data.role) dbRole = data.role;
       }
 
-      // Save the real database name to memory so Dashboard can use it
+      // Save the real database name and role to memory so Dashboard can use it
       localStorage.setItem('userName', dbName); 
+      localStorage.setItem('userRole', dbRole); 
+      
+      // NEW: Save the actual MongoDB ID!
+      if (data.user && data.user._id) {
+          localStorage.setItem('userId', data.user._id);
+      }
       
       // 3. Navigate to dashboard
       navigate('/dashboard');
@@ -74,7 +85,7 @@ const LoginPage = () => {
     } catch (error) {
       console.error('Error during login:', error);
       alert('Cannot connect to backend server. Make sure your backend server is running on port 5000.');
-      setLoading(false); // From main: Stops the loading spinner on error
+      setLoading(false); 
     }
   };
 

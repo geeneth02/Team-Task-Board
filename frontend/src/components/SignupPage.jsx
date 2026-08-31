@@ -37,7 +37,7 @@ const SignupPage = () => {
       return;
     }
 
-    setLoading(true); // From main: start the loading state
+    setLoading(true); 
 
     try {
       const response = await fetch('http://localhost:5000/api/auth/register', {
@@ -48,7 +48,7 @@ const SignupPage = () => {
         body: JSON.stringify({
           firstName: formData.firstName,
           lastName: formData.lastName,
-          jobRole: formData.jobRole, // From auth-fix: include the job role
+          jobRole: formData.jobRole, 
           password: formData.password
         }),
       });
@@ -57,7 +57,7 @@ const SignupPage = () => {
 
       if (!response.ok) {
         alert(data.message || 'Registration failed');
-        setLoading(false); // From main: stop loading on error
+        setLoading(false); 
         return;
       }
 
@@ -66,7 +66,7 @@ const SignupPage = () => {
     } catch (error) {
       console.error('Registration error:', error);
       alert('Cannot connect to backend server. Make sure your backend server is running on port 5000.');
-      setLoading(false); // From main: stop loading on error
+      setLoading(false); 
     }
   };
 
@@ -135,24 +135,14 @@ const SignupPage = () => {
 
           <div className="input-group">
             <label htmlFor="jobRole">Job Role :</label>
-            <select
+            <input
+              type="text"
               id="jobRole"
               name="jobRole"
               value={formData.jobRole}
               onChange={handleChange}
               required
-              style={{ width: '100%', padding: '8px', marginTop: '5px', borderRadius: '4px', border: '1px solid #ccc' }}
-            >
-              <option value="" disabled>Select a role</option>
-              <option value="Frontend Developer">Frontend Developer</option>
-              <option value="Backend Developer">Backend Developer</option>
-              <option value="Full Stack Developer">Full Stack Developer</option>
-              <option value="UI/UX Designer">UI/UX Designer</option>
-              <option value="Data Scientist">Data Scientist</option>
-              <option value="Data Analyst">Data Analyst</option>
-              <option value="QA Engineer">QA Engineer</option>
-              <option value="Project Manager">Project Manager</option>
-            </select>
+            />
           </div>
 
           <div className="input-group">
