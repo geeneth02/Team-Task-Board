@@ -14,6 +14,7 @@ const SignupPage = () => {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
+    jobRole: '', 
     password: '',
     confirmPassword: ''
   });
@@ -36,7 +37,7 @@ const SignupPage = () => {
       return;
     }
 
-    setLoading(true);
+    setLoading(true); // From main: start the loading state
 
     try {
       const response = await fetch('http://localhost:5000/api/auth/register', {
@@ -47,6 +48,7 @@ const SignupPage = () => {
         body: JSON.stringify({
           firstName: formData.firstName,
           lastName: formData.lastName,
+          jobRole: formData.jobRole, // From auth-fix: include the job role
           password: formData.password
         }),
       });
@@ -55,7 +57,7 @@ const SignupPage = () => {
 
       if (!response.ok) {
         alert(data.message || 'Registration failed');
-        setLoading(false);
+        setLoading(false); // From main: stop loading on error
         return;
       }
 
@@ -64,17 +66,16 @@ const SignupPage = () => {
     } catch (error) {
       console.error('Registration error:', error);
       alert('Cannot connect to backend server. Make sure your backend server is running on port 5000.');
-      setLoading(false);
+      setLoading(false); // From main: stop loading on error
     }
   };
 
-  const R = 75;
+  const R = 75; 
   const darkColor = "#021342";
   const lightColor = "#d6dadf";
 
   return (
     <div className="signup-page-container">
-      {/* Top-Left Cluster */}
       <svg className="hex-cluster top-left-svg" viewBox="0 0 350 350">
         <polygon points={getHexPoints(60, 20, R)} fill={darkColor} />
         <polygon points={getHexPoints(190, 20, R)} fill={lightColor} />
@@ -84,7 +85,6 @@ const SignupPage = () => {
         <polygon points={getHexPoints(190, 245, R)} fill={lightColor} />
       </svg>
 
-      {/* Top-Right Cluster */}
       <svg className="hex-cluster top-right-svg" viewBox="0 0 350 350">
         <polygon points={getHexPoints(160, 20, R)} fill={lightColor} />
         <polygon points={getHexPoints(290, 20, R)} fill={lightColor} />
@@ -93,21 +93,18 @@ const SignupPage = () => {
         <polygon points={getHexPoints(160, 245, R)} fill={lightColor} />
       </svg>
 
-      {/* Bottom-Left Cluster */}
       <svg className="hex-cluster bottom-left-svg" viewBox="0 0 350 350">
         <polygon points={getHexPoints(125, 105, R)} fill={lightColor} />
         <polygon points={getHexPoints(60, 217.5, R)} fill={darkColor} />
         <polygon points={getHexPoints(190, 217.5, R)} fill={lightColor} />
       </svg>
 
-      {/* Bottom-Right Cluster */}
       <svg className="hex-cluster bottom-right-svg" viewBox="0 0 350 350">
         <polygon points={getHexPoints(160, 105, R)} fill={lightColor} />
         <polygon points={getHexPoints(290, 105, R)} fill={lightColor} />
         <polygon points={getHexPoints(225, 217.5, R)} fill={darkColor} />
       </svg>
 
-      {/* Center Card */}
       <div className="signup-card">
         <h1 className="signup-title">Welcome!</h1>
         
@@ -134,6 +131,28 @@ const SignupPage = () => {
               onChange={handleChange}
               required
             />
+          </div>
+
+          <div className="input-group">
+            <label htmlFor="jobRole">Job Role :</label>
+            <select
+              id="jobRole"
+              name="jobRole"
+              value={formData.jobRole}
+              onChange={handleChange}
+              required
+              style={{ width: '100%', padding: '8px', marginTop: '5px', borderRadius: '4px', border: '1px solid #ccc' }}
+            >
+              <option value="" disabled>Select a role</option>
+              <option value="Frontend Developer">Frontend Developer</option>
+              <option value="Backend Developer">Backend Developer</option>
+              <option value="Full Stack Developer">Full Stack Developer</option>
+              <option value="UI/UX Designer">UI/UX Designer</option>
+              <option value="Data Scientist">Data Scientist</option>
+              <option value="Data Analyst">Data Analyst</option>
+              <option value="QA Engineer">QA Engineer</option>
+              <option value="Project Manager">Project Manager</option>
+            </select>
           </div>
 
           <div className="input-group">
@@ -164,11 +183,6 @@ const SignupPage = () => {
             {loading ? 'Creating Account...' : 'Sign UP'}
           </button>
         </form>
-      </div>
-
-      {/* Footer Text */}
-      <div className="varg-solutions">
-        VARG Solutions
       </div>
     </div>
   );

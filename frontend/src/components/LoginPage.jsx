@@ -28,37 +28,53 @@ const LoginPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setLoading(true); // From main: Starts the loading spinner
 
     try {
       const response = await fetch('http://localhost:5000/api/auth/login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: formData.name,
+          name: formData.name, 
           password: formData.password
-        }),
+        })
       });
 
       const data = await response.json();
+      
+      // From auth-fix: Helpful for debugging
+      console.log("Backend response:", data);
 
       if (!response.ok) {
-        alert(data.message || 'Invalid credentials');
+        alert(data.message || 'Login failed: Invalid credentials');
         setLoading(false);
         return;
       }
 
-      // Store the JWT token in localStorage for session handling
-      localStorage.setItem('token', data.token);
+      // 1. Store the token
+      localStorage.setItem('token', data.token); 
+      
+      // 2. From auth-fix: Pull the registered name directly from the database response
+      let dbName = formData.name; 
+      
+      if (data.user && data.user.firstName) {
+          dbName = data.user.lastName ? `${data.user.firstName} ${data.user.lastName}` : data.user.firstName;
+      } else if (data.user && data.user.name) {
+          dbName = data.user.name;
+      } else if (data.name) {
+          dbName = data.name;
+      }
 
-      // Navigate to dashboard upon successful login
+      // Save the real database name to memory so Dashboard can use it
+      localStorage.setItem('userName', dbName); 
+      
+      // 3. Navigate to dashboard
       navigate('/dashboard');
+      
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('Error during login:', error);
       alert('Cannot connect to backend server. Make sure your backend server is running on port 5000.');
-      setLoading(false);
+      setLoading(false); // From main: Stops the loading spinner on error
     }
   };
 

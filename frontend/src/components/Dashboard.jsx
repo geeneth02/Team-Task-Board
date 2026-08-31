@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import NotificationsPanel from './NotificationsPanel'; 
-// 1. Import your friend's Task Popup component
 import TaskPopup from './taskUI'; 
 import './Dashboard.css';
 
@@ -34,11 +33,17 @@ const BellIcon = () => (
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState('myWork');
   const [showNotifications, setShowNotifications] = useState(false); 
-  
-  // 2. Add state to track if the task popup is open
   const [showTaskPopup, setShowTaskPopup] = useState(false);
+  const [userName, setUserName] = useState('User');
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const storedName = localStorage.getItem('userName');
+    if (storedName) {
+      setUserName(storedName);
+    }
+  }, []);
 
   const tasks = [
     {
@@ -61,13 +66,20 @@ export default function Dashboard() {
 
   const placeholders = Array.from({ length: 10 });
 
+  const handleLogout = () => {
+    localStorage.removeItem('userName');
+    localStorage.removeItem('token');
+    navigate('/');
+  };
+
   return (
     <div className="dashboard-container">
       {/* Sidebar Navigation */}
       <aside className="sidebar">
         <div className="profile-header">
           <div className="avatar-placeholder"></div>
-          <span className="profile-name">ABC Holdings</span>
+          {/* Static Company Name for branding */}
+          <span className="profile-name">ABC Company</span>
         </div>
 
         <div className="sidebar-white-card">
@@ -87,7 +99,7 @@ export default function Dashboard() {
           </nav>
 
           <div className="sidebar-bottom">
-            <button className="logout-link" onClick={() => navigate('/')}>Logout</button>
+            <button className="logout-link" onClick={handleLogout}>Logout</button>
           </div>
         </div>
       </aside>
@@ -107,7 +119,8 @@ export default function Dashboard() {
             <div className="manager-profile">
               <div className="manager-avatar"></div>
               <div className="manager-info">
-                <span className="manager-title">Manager ˅</span>
+                {/* Dynamically displays the logged-in user's name */}
+                <span className="manager-title">{userName} ˅</span>
                 <span className="manager-date">21/12/2026</span>
               </div>
             </div>
@@ -139,7 +152,6 @@ export default function Dashboard() {
                   <div 
                     className="task-card" 
                     key={task.id}
-                    // 3. Make the card clickable and trigger the popup
                     onClick={() => setShowTaskPopup(true)}
                     style={{ cursor: 'pointer' }}
                   >
@@ -169,7 +181,6 @@ export default function Dashboard() {
         </main>
       </div>
 
-      {/* 4. Render the Task Popup overlay if state is true */}
       {showTaskPopup && <TaskPopup onClose={() => setShowTaskPopup(false)} />}
     </div>
   );
