@@ -124,7 +124,7 @@ export default function Dashboard() {
       <aside className="sidebar">
         <div className="profile-header">
           <div className="avatar-placeholder"></div>
-          <span className="profile-name">ABC Company</span>
+          <span className="profile-name">Team Task Board</span>
         </div>
 
         <div className="sidebar-white-card">
