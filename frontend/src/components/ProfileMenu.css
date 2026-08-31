@@ -1,0 +1,132 @@
+.profile-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: flex-end; /* Pushes the menu to the right side */
+  align-items: flex-start;
+  z-index: 1000;
+}
+
+.profile-menu-container {
+  background: white;
+  margin-top: 70px;
+  margin-right: 40px; /* Gives it breathing room from the right edge */
+  width: 250px;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-menu-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.profile-menu-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: #e2e8f0;
+  object-fit: cover;
+}
+
+.profile-menu-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.profile-menu-options button {
+  background: none;
+  border: none;
+  text-align: left;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 6px;
+  color: #1a202c;
+}
+
+.profile-menu-options button:hover {
+  background-color: #f4f7fc;
+}
+
+.sign-out-btn {
+  background: none;
+  border: none;
+  text-align: left;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 6px;
+}
+
+.sign-out-btn:hover {
+  background-color: #fff5f5;
+}
+
+/* --- NEW: Center the update forms on the screen --- */
+.update-form-container {
+  background: white;
+  width: 350px;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  margin: auto; /* Pushes it to the center of the overlay */
+  margin-top: 15vh;
+}
+
+/* Form Inputs inside the modals */
+.update-form-container label {
+  display: block;
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.update-form-container .form-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.update-form-container .form-input:focus {
+  outline: none;
+  border-color: #030b2e;
+}
+
+/* Button styles matching the theme */
+.btn-primary {
+  background-color: #030b2e;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: #666;
+  border: 1px solid #ddd;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background-color: #1a2559;
+}
