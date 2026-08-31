@@ -194,6 +194,10 @@ export default function Dashboard() {
 
       {/* Main Viewport */}
       <div className="main-viewport">
+<<<<<<< HEAD
+=======
+        {/* Updated Top Header Bar matching Assign Screen */}
+>>>>>>> 534136d48f84caecd1a47232b630b227915b4f63
         <header className="top-navbar" style={{ position: 'relative', justifyContent: 'space-between', paddingLeft: '40px' }}>
           <div style={{ fontSize: '15px', fontWeight: '500', color: '#1a202c' }}>
             {new Date().toLocaleDateString('en-GB')}
@@ -245,7 +249,19 @@ export default function Dashboard() {
                     <div 
                       className="task-card" 
                       key={task._id} 
+<<<<<<< HEAD
                       onClick={() => setSelectedTask(task)} 
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+                      onClick={() => setSelectedTask(task)} // Opens the interactive popup modal!
+=======
+                      onClick={() => setSelectedTask(task)}
+>>>>>>> 1536209 (Update dashboard header layout to match assign screen)
+=======
+                      onClick={() => setSelectedTask(task)}
+>>>>>>> 153620937376a504bfd3b432cf22e1f833834dce
+>>>>>>> 534136d48f84caecd1a47232b630b227915b4f63
                       style={{ cursor: 'pointer' }}
                     >
                       <div className={`accent-bar ${getStatusColor(task.status)}`}></div>
