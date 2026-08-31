@@ -53,3 +53,14 @@ exports.login = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// NEW: Get all registered users for the dropdown
+exports.getAllUsers = async (req, res) => {
+  try {
+    // We only need the first and last names
+    const users = await User.find({}, 'firstName lastName'); 
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
