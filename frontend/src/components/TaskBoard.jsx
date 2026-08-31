@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-// --- TASK POPUP COMPONENT ---
+// --- TASK POPUP COMPONENT (Remains unchanged) ---
 function TaskPopup({ onClose, taskName }) {
   const UserSvg = () => (
     <svg viewBox="0 0 24 24" fill="none" stroke="#2b4c7e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: '22px', height: '22px' }}>
@@ -13,17 +13,8 @@ function TaskPopup({ onClose, taskName }) {
   return (
     <>
       <style>{`
-        .popup-overlay {
-          position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-          background-color: rgba(0, 0, 0, 0.4);
-          display: flex; align-items: center; justify-content: center;
-          z-index: 1000;
-        }
-        .popup-container {
-          background-color: #ffffff; border-radius: 12px;
-          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-          width: 100%; max-width: 650px; padding: 30px;
-        }
+        .popup-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.4); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+        .popup-container { background-color: #ffffff; border-radius: 12px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15); width: 100%; max-width: 650px; padding: 30px; }
         .popup-header { display: flex; align-items: center; gap: 12px; margin-bottom: 15px; }
         .popup-header h2 { margin: 0; font-size: 22px; font-weight: 500; color: #333; }
         .popup-header h2.title-blue { color: #2b4c7e; font-weight: 600; }
@@ -68,31 +59,24 @@ function TaskPopup({ onClose, taskName }) {
               <div className="info-label">Assigned by:</div>
               <div className="user-block">
                 <div className="avatar-circle"><UserSvg /></div>
-                <div><div className="user-name">Gotha bataya</div><div className="user-subtext">Assigned on 19/12/2026</div></div>
+                <div><div className="user-name">Manager</div><div className="user-subtext">Assigned recently</div></div>
               </div>
             </div>
             <div>
               <div className="info-label">Assigned to:</div>
               <div className="user-block">
                 <div className="avatar-circle"><UserSvg /></div>
-                <div><div className="user-name">Moda bataya</div><div className="user-subtext">Designer</div></div>
+                <div><div className="user-name">You</div><div className="user-subtext">Assignee</div></div>
               </div>
             </div>
-            <div><div className="info-label">Created on:</div><div className="date-text">13/05/2026</div></div>
-          </div>
-          <div className="key-dates-box">
-            <div className="key-dates-title">Key Dates</div>
-            <div className="key-dates-row">
-              <div className="due-date-text">Due Date: <span className="due-date-val">25/12/2026</span><span className="days-left">( 3 days left )</span></div>
-              <div className="status-block"><span>Status:</span><div className="status-dot-small"></div><span>Ongoing</span></div>
-            </div>
+            <div><div className="info-label">Created on:</div><div className="date-text">Auto-generated</div></div>
           </div>
           <div className="bottom-grid">
-            <div><div className="section-heading" style={{ marginBottom: '8px' }}>Description</div><div className="desc-text">Design the final pages</div></div>
-            <div><div className="section-heading" style={{ marginBottom: '8px' }}>Comments</div><textarea className="comments-textarea" defaultValue="Use pastel colors"></textarea></div>
+            <div><div className="section-heading" style={{ marginBottom: '8px' }}>Description</div><div className="desc-text">Review task details</div></div>
+            <div><div className="section-heading" style={{ marginBottom: '8px' }}>Comments</div><textarea className="comments-textarea" defaultValue="Add notes..."></textarea></div>
           </div>
           <div className="action-buttons">
-            <button className="btn btn-outline" onClick={onClose}>Add comment</button>
+            <button className="btn btn-outline" onClick={onClose}>Close</button>
             <button className="btn btn-solid" onClick={onClose}>Update Status</button>
           </div>
         </div>
@@ -106,16 +90,50 @@ export default function Allworks() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('all');
   const [selectedTask, setSelectedTask] = useState(null);
+  
+  // New state variables for database integration
+  const [tasks, setTasks] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const tasks = [
-    { id: 1, title: 'API integration', subtitle: 'with consultation', assignee: 'Amaya', type: 'todo' },
-    { id: 2, title: 'API integration', type: 'todo' },
-    { id: 3, title: 'API integration', type: 'progress' },
-    { id: 4, title: 'API integration', type: 'progress' },
-    { id: 5, title: 'UI / UX Design', type: 'done' },
-    { id: 6, title: 'UI / UX Design', type: 'done' },
-  ];
+  // Fetch tasks on component mount
+ // Fetch tasks on component mount
+  useEffect(() => {
+    const fetchMyTasks = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/tasks');
+        const data = await response.json();
 
+        // Retrieve the logged-in user's first name from localStorage
+        const currentUser = localStorage.getItem('firstName');
+        
+        // Filter the incoming database array to match your identity
+        const myTasks = data
+          .filter(task => task.assignees && task.assignees.includes(currentUser))
+          .map(task => {
+            // Map the database string statuses to your UI tab types
+            let uiType = 'todo';
+            if (task.status === 'Ongoing') uiType = 'progress';
+            if (task.status === 'Finished') uiType = 'done';
+
+            return {
+              id: task._id,
+              title: task.title,
+              subtitle: task.description,
+              assignee: task.assignees[0],
+              type: uiType
+            };
+          });
+
+        setTasks(myTasks);
+      } catch (error) {
+        console.error('Error fetching tasks:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMyTasks();
+  }, []);
   const filteredTasks = tasks.filter(task => {
     if (activeTab === 'all') return true;
     return task.type === activeTab;
@@ -130,9 +148,9 @@ export default function Allworks() {
 
   const tabConfigs = [
     { id: 'all', label: 'All', activeColor: '#2b74e2', inactiveColor: '#2b74e2', badgeBg: '#8fa0e6' },
-    { id: 'todo', label: 'To-do', activeColor: '#D94545', inactiveColor: '#D94545', badgeBg: '#D94545' },
-    { id: 'progress', label: 'In-progress', activeColor: '#ECA336', inactiveColor: '#ECA336', badgeBg: '#ECA336' },
-    { id: 'done', label: 'Done', activeColor: '#5FAD77', inactiveColor: '#5FAD77', badgeBg: '#5FAD77' }
+    { id: 'todo', label: 'To-do', activeColor: '#d92d20', inactiveColor: '#d92d20', badgeBg: '#d92d20' },
+    { id: 'progress', label: 'In-progress', activeColor: '#f79009', inactiveColor: '#f79009', badgeBg: '#f79009' },
+    { id: 'done', label: 'Done', activeColor: '#73e23d', inactiveColor: '#73e23d', badgeBg: '#73e23d' }
   ];
 
   const GridIcon = () => (<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h8v8H3V3zm0 10h8v8H3v-8zm10-10h8v8h-8V3zm0 10h8v8h-8v-8z"/></svg>);
@@ -145,11 +163,7 @@ export default function Allworks() {
       <style>{`
         * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         body { margin: 0; padding: 0; }
-        
-        /* Layout Wrapper matching Dashboard */
         .app-layout { display: flex; height: 100vh; width: 100vw; overflow: hidden; background-color: #030b2e; }
-        
-        /* Integrated Sidebar CSS from Dashboard.css */
         .sidebar { width: 240px; display: flex; flex-direction: column; background-color: #030b2e; flex-shrink: 0; }
         .profile-header { display: flex; align-items: center; gap: 16px; padding: 24px 20px; }
         .avatar-placeholder { width: 48px; height: 48px; background-color: #d9d9d9; border-radius: 50%; }
@@ -160,8 +174,6 @@ export default function Allworks() {
         .nav-btn.active { background-color: #030b2e; color: #ffffff; }
         .sidebar-bottom { padding-bottom: 10px; }
         .logout-link { background: none; border: none; color: #e53e3e; font-size: 15px; font-weight: 700; cursor: pointer; padding-left: 8px; }
-        
-        /* Main Board Content */
         .main-content { flex: 1; display: flex; flex-direction: column; background-color: #ffffff; }
         .header { height: 70px; display: flex; justify-content: flex-end; align-items: center; padding: 0 30px; }
         .header-actions { display: flex; align-items: center; gap: 15px; }
@@ -174,8 +186,13 @@ export default function Allworks() {
         .tab-inactive { background-color: white; border-radius: 20px; padding: 6px 16px; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px; margin-bottom: 12px; cursor: pointer; }
         .badge { color: white; border-radius: 50%; width: 22px; height: 22px; display: flex; justify-content: center; align-items: center; font-size: 12px; }
         .board-grid { background-color: #f8f9fa; flex: 1; border-radius: 0 0 12px 12px; padding: 30px; display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 25px; align-content: flex-start; overflow-y: auto; }
-        .card { border-radius: 8px; padding: 20px; min-height: 120px; display: flex; flex-direction: column; cursor: pointer; transition: transform 0.2s ease; }
+        .card { background: white; border-radius: 12px; padding: 18px 20px; min-height: 120px; display: flex; flex-direction: column; cursor: pointer; border-left: 6px solid; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: transform 0.2s ease; }
         .card:hover { transform: translateY(-2px); }
+        .card h3 { margin: 0 0 4px 0; font-size: 18px; font-weight: 500; color: #1a202c; }
+        .task-tag { margin: 0 0 20px 0; font-size: 12px; color: #718096; }
+        .task-footer { display: flex; justify-content: space-between; align-items: center; font-size: 12px; margin-top: auto; }
+        .assignee { display: flex; align-items: center; gap: 8px; color: #1a202c; font-weight: 500; }
+        .assignee-dot { width: 14px; height: 14px; border-radius: 50%; background-color: #cbd5e0; }
       `}</style>
 
       {selectedTask && (
@@ -183,15 +200,14 @@ export default function Allworks() {
       )}
 
       <div className="app-layout">
-        {/* Integrated Sidebar DOM structure from Dashboard.jsx */}
         <aside className="sidebar">
           <div className="profile-header">
             <div className="avatar-placeholder"></div>
-            <span className="profile-name">ABC Holdings</span>
+            <span className="profile-name">BLA BLA</span>
           </div>
           
           <div className="sidebar-white-card">
-            <nav className="nav-menu">
+            <nav className="nav-menu" style={{ marginTop: '30px' }}>
               <button className="nav-btn" onClick={() => navigate('/dashboard')}>
                 <GridIcon />
                 <span>DashBoard</span>
@@ -239,38 +255,46 @@ export default function Allworks() {
             </div>
 
             <div className="board-grid">
-              {filteredTasks.map(task => {
-                const styles = {
-                  'todo': { bg: '#FCF3F1', border: '#D94545' },
-                  'progress': { bg: '#FDF7EE', border: '#ECA336' },
-                  'done': { bg: '#F0F5F2', border: '#5FAD77' }
-                };
-                const currentStyle = styles[task.type] || styles['todo'];
+              {loading ? (
+                <p style={{ gridColumn: '1 / -1', textAlign: 'center', color: '#666' }}>Loading your tasks...</p>
+              ) : filteredTasks.length === 0 ? (
+                <p style={{ gridColumn: '1 / -1', textAlign: 'center', color: '#999' }}>No tasks found for you in this category.</p>
+              ) : (
+                filteredTasks.map(task => {
+                  const borderColor = {
+                    'todo': '#d92d20',
+                    'progress': '#f79009',
+                    'done': '#73e23d'
+                  }[task.type] || '#d92d20';
 
-                return (
-                  <div 
-                    key={task.id} 
-                    className="card" 
-                    style={{ backgroundColor: currentStyle.bg, borderLeft: `5px solid ${currentStyle.border}` }}
-                    onClick={() => setSelectedTask(task)} 
-                  >
-                    <h3 style={{ margin: '0 0 5px 0', fontSize: '15px', fontWeight: '600', color: '#333' }}>{task.title}</h3>
-                    {task.subtitle && <p style={{ fontSize: '12px', color: '#666', margin: '0 0 15px 0' }}>{task.subtitle}</p>}
-                    {task.assignee && (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: 'auto' }}>
-                        <div style={{ width: '18px', height: '18px', borderRadius: '50%', backgroundColor: '#ccc' }}></div>
-                        <span style={{ fontSize: '12px', color: '#555' }}>{task.assignee}</span>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+                  return (
+                    <div 
+                      key={task.id} 
+                      className="card" 
+                      style={{ borderLeftColor: borderColor }}
+                      onClick={() => setSelectedTask(task)} 
+                    >
+                      <h3>{task.title}</h3>
+                      {task.subtitle && <p className="task-tag">{task.subtitle}</p>}
+                      
+                      {task.assignee && (
+                        <div className="task-footer">
+                          <span className="assignee">
+                            <div className="assignee-dot"></div> 
+                            {task.assignee}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })
+              )}
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '20px', paddingTop: '15px', fontSize: '13px', fontWeight: '500' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><div style={{ width: '15px', height: '15px', borderRadius: '3px', backgroundColor: '#D94545' }}></div> To - do</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><div style={{ width: '15px', height: '15px', borderRadius: '3px', backgroundColor: '#ECA336' }}></div> In - Progress</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><div style={{ width: '15px', height: '15px', borderRadius: '3px', backgroundColor: '#A2E6B8' }}></div> Finished</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#d92d20' }}></div> To - do</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#f79009' }}></div> In - Progress</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#73e23d' }}></div> Finished</div>
             </div>
           </div>
         </div>

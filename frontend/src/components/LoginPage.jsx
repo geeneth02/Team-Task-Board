@@ -52,6 +52,9 @@ const LoginPage = () => {
 
       // Store the JWT token in localStorage for session handling
       localStorage.setItem('token', data.token);
+      
+      // CRITICAL FIX: Save the exact name used to log in so Allworks.jsx can filter the assigned tasks
+      localStorage.setItem('firstName', data.firstName || formData.name);
 
       // Navigate to dashboard upon successful login
       navigate('/dashboard');
