@@ -40,7 +40,6 @@ export default function Dashboard() {
     fetchTasks(storedName, storedId);
   }, []);
 
-  // Robust matching helper to handle full names vs first names (e.g., "amaya senu v" matching "Amaya")
   const matchesUser = (field, name, id) => {
     if (!field) return false;
     const nameLower = name ? name.trim().toLowerCase() : '';
@@ -59,7 +58,6 @@ export default function Dashboard() {
     if (idStr && fieldStr === idStr.toLowerCase()) return true;
     if (nameLower && (fieldStr.includes(nameLower) || nameLower.includes(fieldStr))) return true;
 
-    // Check individual name parts (e.g. matching "amaya" from "amaya senu v")
     const nameParts = nameLower.split(/\s+/);
     const fieldParts = fieldStr.split(/\s+/);
     return nameParts.some(part => part.length > 1 && fieldStr.includes(part)) ||
@@ -87,7 +85,6 @@ export default function Dashboard() {
           task.created_by
         ];
         
-        const hasCreatorField = creatorFields.some(f => f);
         const isCreatedByMe = creatorFields.some(field => matchesUser(field, currentUserName, currentUserId));
 
         let assigneesList = [];
@@ -104,20 +101,14 @@ export default function Dashboard() {
           assignedToMe.push(task);
         }
 
-        // 2. Tasks assigned BY me -> Assigned work 
-        // (Includes explicit creator match, or tasks assigned to others when no creator tag is present)
-        if (isCreatedByMe || (!hasCreatorField && !isAssignedToMe && assigneesList.length > 0)) {
+        // 2. Tasks assigned BY me -> Assigned work (Strictly filtered by creator match)
+        if (isCreatedByMe) {
           assignedByMe.push(task);
         }
       });
 
-      // Fallback: If no tasks were matched due to missing metadata, list all tasks in assignedWork so nothing is hidden
-      if (assignedToMe.length === 0 && assignedByMe.length === 0 && data.length > 0) {
-        setAssignedWorkTasks(data);
-      } else {
-        setMyWorkTasks(assignedToMe);
-        setAssignedWorkTasks(assignedByMe);
-      }
+      setMyWorkTasks(assignedToMe);
+      setAssignedWorkTasks(assignedByMe);
 
     } catch (error) {
       console.error('Error loading tasks:', error);
@@ -194,10 +185,6 @@ export default function Dashboard() {
 
       {/* Main Viewport */}
       <div className="main-viewport">
-<<<<<<< HEAD
-=======
-        {/* Updated Top Header Bar matching Assign Screen */}
->>>>>>> 534136d48f84caecd1a47232b630b227915b4f63
         <header className="top-navbar" style={{ position: 'relative', justifyContent: 'space-between', paddingLeft: '40px' }}>
           <div style={{ fontSize: '15px', fontWeight: '500', color: '#1a202c' }}>
             {new Date().toLocaleDateString('en-GB')}
@@ -249,19 +236,7 @@ export default function Dashboard() {
                     <div 
                       className="task-card" 
                       key={task._id} 
-<<<<<<< HEAD
                       onClick={() => setSelectedTask(task)} 
-=======
-<<<<<<< HEAD
-<<<<<<< HEAD
-                      onClick={() => setSelectedTask(task)} // Opens the interactive popup modal!
-=======
-                      onClick={() => setSelectedTask(task)}
->>>>>>> 1536209 (Update dashboard header layout to match assign screen)
-=======
-                      onClick={() => setSelectedTask(task)}
->>>>>>> 153620937376a504bfd3b432cf22e1f833834dce
->>>>>>> 534136d48f84caecd1a47232b630b227915b4f63
                       style={{ cursor: 'pointer' }}
                     >
                       <div className={`accent-bar ${getStatusColor(task.status)}`}></div>
