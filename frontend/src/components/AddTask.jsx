@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom'; // Added useLocation
+import { useNavigate, useLocation } from 'react-router-dom';
 import './AddTask.css';
 
 const AddTask = () => {
@@ -9,14 +9,12 @@ const AddTask = () => {
   // Extract task data if we came from the "Update" button
   const editTask = location.state?.editTask;
 
-  // Initialize state with editTask data if it exists, otherwise empty
   const [title, setTitle] = useState(editTask ? editTask.title : '');
   const [description, setDescription] = useState(editTask ? editTask.description : '');
   const [assignee, setAssignee] = useState(editTask && editTask.assignees[0] ? editTask.assignees[0] : '');
   const [startDate, setStartDate] = useState(editTask ? editTask.startDate : '');
   const [dueDate, setDueDate] = useState(editTask ? editTask.dueDate : '');
   const [priority, setPriority] = useState(editTask ? editTask.priority : 'High');
-  // Only show status dropdown if we are editing an existing task
   const [status, setStatus] = useState(editTask ? editTask.status : 'Not Started');
   const [loading, setLoading] = useState(false);
   const [users, setUsers] = useState([]);
@@ -44,25 +42,35 @@ const AddTask = () => {
 
     setLoading(true);
 
+    // Get the currently logged-in manager's name
+    const currentManager = localStorage.getItem('firstName') || localStorage.getItem('userName') || 'Manager';
+
     try {
-      // If editing, use PUT and target the specific task ID. Otherwise POST.
       const method = editTask ? 'PUT' : 'POST';
       const url = editTask 
         ? `http://localhost:5000/api/tasks/${editTask._id}` 
         : 'http://localhost:5000/api/tasks';
 
+      // Build payload body
+      const payload = {
+        title,
+        description,
+        assignees: [assignee], 
+        startDate,
+        dueDate,
+        priority,
+        status
+      };
+
+      // If creating a new task, tag it with the creator's name
+      if (!editTask) {
+        payload.createdBy = currentManager;
+      }
+
       const response = await fetch(url, {
         method: method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title,
-          description,
-          assignees: [assignee], 
-          startDate,
-          dueDate,
-          priority,
-          status // Will be 'Not Started' for new tasks, or whatever is selected for existing tasks
-        }),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) throw new Error('Failed to save task');
@@ -150,7 +158,6 @@ const AddTask = () => {
               ))}
             </div>
           </div>
-          {/* ONLY show column status if updating, so they can move it to Ongoing/Finished */}
           {editTask && (
             <div className="form-group half-width">
               <label>Column Status</label>

@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { io } from 'socket.io-client';
 import './Dashboard.css'; 
 import './Assign.css';    
+
+const socket = io('http://localhost:5000');
 
 const DashboardIcon = () => ( <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h8v8H3V3zm0 10h8v8H3v-8zm10-10h8v8h-8V3zm0 10h8v8h-8v-8z"/></svg> );
 const AssignIcon = () => ( <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> );
@@ -16,6 +19,25 @@ export default function Assign() {
 
   useEffect(() => {
     fetchTasks();
+
+    socket.on('taskUpdateReceived', (updatedTask) => {
+      setTasks(prevTasks => prevTasks.map(t => t._id === updatedTask._id ? updatedTask : t));
+    });
+
+    socket.on('taskCreateReceived', (newTask) => {
+      const currentManager = (localStorage.getItem('firstName') || localStorage.getItem('userName') || '').trim().toLowerCase();
+      const creator = (newTask.createdBy || '').trim().toLowerCase();
+      
+      // ONLY append if it was strictly created by the logged-in manager
+      if (creator && creator === currentManager) {
+        setTasks(prevTasks => [newTask, ...prevTasks]);
+      }
+    });
+
+    return () => {
+      socket.off('taskUpdateReceived');
+      socket.off('taskCreateReceived');
+    };
   }, []);
 
   const fetchTasks = async () => {
@@ -23,7 +45,16 @@ export default function Assign() {
       const response = await fetch('http://localhost:5000/api/tasks');
       if (!response.ok) throw new Error('Failed to fetch tasks');
       const data = await response.json();
-      setTasks(data);
+
+      const currentManager = (localStorage.getItem('firstName') || localStorage.getItem('userName') || '').trim().toLowerCase();
+
+      // STRICT FILTER: Only show tasks where createdBy explicitly matches the logged-in user
+      const myCreatedTasks = data.filter(task => {
+        const creator = (task.createdBy || '').trim().toLowerCase();
+        return creator === currentManager;
+      });
+
+      setTasks(myCreatedTasks);
     } catch (error) {
       console.error('Error loading tasks:', error);
     } finally {
@@ -41,7 +72,7 @@ export default function Assign() {
       if (response.ok) {
         setTasks(tasks.filter(task => task._id !== taskId));
         setOpenMenuId(null);
-        setSelectedTask(null); // Close modal if open
+        setSelectedTask(null); 
       } else {
         alert('Failed to delete task');
       }
@@ -174,7 +205,6 @@ export default function Assign() {
         </main>
       </div>
 
-      {/* INTERACTIVE & STYLED TASK DETAILS MODAL */}
       {selectedTask && (
         <div 
           onClick={() => setSelectedTask(null)} 
@@ -184,7 +214,6 @@ export default function Assign() {
             onClick={(e) => e.stopPropagation()} 
             style={{ backgroundColor: 'white', padding: '35px', borderRadius: '16px', width: '500px', boxShadow: '0 20px 40px rgba(0,0,0,0.2)', position: 'relative', borderTop: '6px solid #030b2e' }}
           >
-            {/* Close 'X' Button */}
             <button 
               onClick={() => setSelectedTask(null)}
               style={{ position: 'absolute', top: '20px', right: '20px', background: 'none', border: 'none', fontSize: '20px', color: '#a0aec0', cursor: 'pointer', fontWeight: 'bold' }}
@@ -197,7 +226,6 @@ export default function Assign() {
             </h2>
 
             <div style={{ margin: '20px 0', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              {/* Description Box */}
               <div style={{ backgroundColor: '#f8fafc', padding: '14px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
                 <span style={{ fontSize: '12px', fontWeight: '600', color: '#718096', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Description</span>
                 <p style={{ margin: '6px 0 0 0', color: '#2d3748', fontSize: '14px', lineHeight: '1.5' }}>
@@ -205,7 +233,6 @@ export default function Assign() {
                 </p>
               </div>
 
-              {/* Status & Priority Row */}
               <div style={{ display: 'flex', gap: '15px' }}>
                 <div style={{ flex: 1, backgroundColor: '#f8fafc', padding: '12px 14px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
                   <span style={{ fontSize: '12px', fontWeight: '600', color: '#718096', textTransform: 'uppercase' }}>Status</span>
@@ -223,7 +250,6 @@ export default function Assign() {
                 </div>
               </div>
 
-              {/* Assignees Section */}
               <div style={{ backgroundColor: '#f8fafc', padding: '12px 14px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
                 <span style={{ fontSize: '12px', fontWeight: '600', color: '#718096', textTransform: 'uppercase' }}>Assigned Team Members</span>
                 <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '8px' }}>
@@ -240,14 +266,12 @@ export default function Assign() {
                 </div>
               </div>
 
-              {/* Timelines Section */}
               <div style={{ display: 'flex', justifyContent: 'space-between', backgroundColor: '#f8fafc', padding: '12px 14px', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '13px', color: '#4a5568' }}>
                 <span><strong>Start Date:</strong> {selectedTask.startDate || 'Not set'}</span>
                 <span><strong>Due Date:</strong> {selectedTask.dueDate || 'Not set'}</span>
               </div>
             </div>
 
-            {/* Action Buttons Footer */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '25px', borderTop: '1px solid #edf2f7', paddingTop: '15px' }}>
               <button 
                 onClick={() => handleDelete(selectedTask._id)}

@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { io } from 'socket.io-client'; // <-- 1. Import socket client
 import NotificationsPanel from './NotificationsPanel'; 
 import ProfileMenu from './ProfileMenu'; 
+
+const socket = io('http://localhost:5000'); // <-- Connect to socket server
 
 // --- TASK POPUP COMPONENT ---
 function TaskPopup({ onClose, task, onRefresh }) {
@@ -36,6 +39,11 @@ function TaskPopup({ onClose, task, onRefresh }) {
       });
 
       if (response.ok) {
+        const updatedTaskData = await response.json();
+        
+        // <-- 2. Emit socket event so assigner's screen updates live
+        socket.emit('taskUpdated', updatedTaskData);
+
         onRefresh(); 
         onClose(); 
       } else {
@@ -179,7 +187,6 @@ export default function Allworks() {
   const [activeTab, setActiveTab] = useState('all');
   const [selectedTask, setSelectedTask] = useState(null);
   
-  // Dashboard Header States
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [userName, setUserName] = useState('User');
@@ -189,7 +196,6 @@ export default function Allworks() {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Initialize user data from local storage
   useEffect(() => {
     const storedName = localStorage.getItem('firstName') || localStorage.getItem('userName');
     if (storedName) setUserName(storedName);
@@ -244,6 +250,15 @@ export default function Allworks() {
 
   useEffect(() => {
     fetchMyTasks();
+
+    // <-- 3. Listen for socket updates in All Works too
+    socket.on('taskUpdateReceived', () => {
+      fetchMyTasks();
+    });
+
+    return () => {
+      socket.off('taskUpdateReceived');
+    };
   }, []);
 
   const handleLogout = () => {
