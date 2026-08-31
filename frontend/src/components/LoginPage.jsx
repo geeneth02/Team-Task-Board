@@ -48,27 +48,39 @@ const LoginPage = () => {
         return;
       }
 
-      // 1. Store the token
-      localStorage.setItem('token', data.token); 
-      
-      // 2. Pull the registered name AND role directly from the database response
-      let dbName = formData.name; 
+// 1. Store the token
+      localStorage.setItem('token', data.token);
+
+      // 2. Extract details from the database response
+      let dbName = formData.name;
       let dbRole = 'Member'; // Fallback role
-      
+      let exactFirstName = formData.name; // Captured for your Allworks filter
+
       if (data.user) {
-          if (data.user.firstName) {
-              dbName = data.user.lastName ? `${data.user.firstName} ${data.user.lastName}` : data.user.firstName;
-          } else if (data.user.name) {
-              dbName = data.user.name;
-          }
-          // Grab the role (checking both jobRole and role depending on your backend schema)
-          if (data.user.jobRole) dbRole = data.user.jobRole;
-          else if (data.user.role) dbRole = data.user.role;
+        if (data.user.firstName) {
+          exactFirstName = data.user.firstName;
+          dbName = data.user.lastName ? `${data.user.firstName} ${data.user.lastName}` : data.user.firstName;
+        } else if (data.user.name) {
+          exactFirstName = data.user.name;
+          dbName = data.user.name;
+        }
+        
+        // Grab the role (checking both jobRole and role)
+        if (data.user.jobRole) dbRole = data.user.jobRole;
+        else if (data.user.role) dbRole = data.user.role;
       } else {
-          if (data.name) dbName = data.name;
-          if (data.jobRole) dbRole = data.jobRole;
-          else if (data.role) dbRole = data.role;
+        if (data.firstName) exactFirstName = data.firstName;
+        if (data.name) dbName = data.name;
+        if (data.jobRole) dbRole = data.jobRole;
+        else if (data.role) dbRole = data.role;
       }
+
+      // 3. Save everything to localStorage so both features work perfectly
+      localStorage.setItem('userName', dbName);
+      localStorage.setItem('userRole', dbRole);
+      
+      // CRITICAL FIX: Save the exact first name for Allworks task filtering
+      localStorage.setItem('firstName', exactFirstName);
 
       // Save the real database name and role to memory so Dashboard can use it
       localStorage.setItem('userName', dbName); 
