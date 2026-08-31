@@ -212,10 +212,14 @@ export default function Dashboard() {
                       className="task-card" 
                       key={task._id} 
 <<<<<<< HEAD
+<<<<<<< HEAD
                       onClick={() => setSelectedTask(task)} // Opens the interactive popup modal!
 =======
                       onClick={() => setSelectedTask(task)}
 >>>>>>> 1536209 (Update dashboard header layout to match assign screen)
+=======
+                      onClick={() => setSelectedTask(task)}
+>>>>>>> 153620937376a504bfd3b432cf22e1f833834dce
                       style={{ cursor: 'pointer' }}
                     >
                       <div className={`accent-bar ${getStatusColor(task.status)}`}></div>
