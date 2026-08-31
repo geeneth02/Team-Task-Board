@@ -28,37 +28,64 @@ const LoginPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setLoading(true); 
 
     try {
       const response = await fetch('http://localhost:5000/api/auth/login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: formData.name,
+          name: formData.name, 
           password: formData.password
-        }),
+        })
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        alert(data.message || 'Invalid credentials');
+        alert(data.message || 'Login failed: Invalid credentials');
         setLoading(false);
         return;
       }
 
-      // Store the JWT token in localStorage for session handling
-      localStorage.setItem('token', data.token);
+      // 1. Store the token
+      localStorage.setItem('token', data.token); 
+      
+      // 2. Pull the registered name AND role directly from the database response
+      let dbName = formData.name; 
+      let dbRole = 'Member'; // Fallback role
+      
+      if (data.user) {
+          if (data.user.firstName) {
+              dbName = data.user.lastName ? `${data.user.firstName} ${data.user.lastName}` : data.user.firstName;
+          } else if (data.user.name) {
+              dbName = data.user.name;
+          }
+          // Grab the role (checking both jobRole and role depending on your backend schema)
+          if (data.user.jobRole) dbRole = data.user.jobRole;
+          else if (data.user.role) dbRole = data.user.role;
+      } else {
+          if (data.name) dbName = data.name;
+          if (data.jobRole) dbRole = data.jobRole;
+          else if (data.role) dbRole = data.role;
+      }
 
-      // Navigate to dashboard upon successful login
+      // Save the real database name and role to memory so Dashboard can use it
+      localStorage.setItem('userName', dbName); 
+      localStorage.setItem('userRole', dbRole); 
+      
+      // NEW: Save the actual MongoDB ID!
+      if (data.user && data.user._id) {
+          localStorage.setItem('userId', data.user._id);
+      }
+      
+      // 3. Navigate to dashboard
       navigate('/dashboard');
+      
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('Error during login:', error);
       alert('Cannot connect to backend server. Make sure your backend server is running on port 5000.');
-      setLoading(false);
+      setLoading(false); 
     }
   };
 

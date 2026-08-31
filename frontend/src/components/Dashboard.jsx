@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import NotificationsPanel from './NotificationsPanel'; 
 import TaskPopup from './taskUI'; 
-import ProfileMenu from './ProfileMenu'; // Added this import back
+import ProfileMenu from './ProfileMenu'; 
 import './Dashboard.css';
 
 const DashboardIcon = () => ( <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h8v8H3V3zm0 10h8v8H3v-8zm10-10h8v8h-8V3zm0 10h8v8h-8v-8z"/></svg> );
@@ -14,15 +14,38 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState('myWork');
   const [showNotifications, setShowNotifications] = useState(false); 
   const [showTaskPopup, setShowTaskPopup] = useState(false);
-  const [showProfileMenu, setShowProfileMenu] = useState(false); // State for profile menu
+  const [showProfileMenu, setShowProfileMenu] = useState(false); 
+  
+  // State to hold data from local storage
+  const [userName, setUserName] = useState('User');
+  const [userRole, setUserRole] = useState('Member'); 
+  const [userId, setUserId] = useState(''); // <-- NEW ID State
 
   const navigate = useNavigate();
 
-  // Mock user data (Will eventually be populated from your login token/backend)
+  // Grab the dynamic name, role, and ID when the dashboard loads
+  useEffect(() => {
+    const storedName = localStorage.getItem('userName');
+    if (storedName) {
+      setUserName(storedName);
+    }
+
+    const storedRole = localStorage.getItem('userRole');
+    if (storedRole) {
+      setUserRole(storedRole);
+    }
+
+    const storedId = localStorage.getItem('userId');
+    if (storedId) {
+      setUserId(storedId);
+    }
+  }, []);
+
+  // Use the dynamic userName, userRole, and userId
   const loggedInUser = {
-    _id: 'PASTE_YOUR_MONGODB_ID_HERE', // <-- Added the _id property here
-    firstName: 'Geeneth', // Changed this to show it dynamically updates
-    role: 'Admin',
+    _id: userId, // <-- REPLACED THE PLACEHOLDER
+    firstName: userName, 
+    role: userRole,
     profilePhoto: '' 
   };
 
@@ -33,13 +56,22 @@ export default function Dashboard() {
 
   const placeholders = Array.from({ length: 10 });
 
+  // Secure logout clearing all local storage tokens
+  const handleLogout = () => {
+    localStorage.removeItem('userName');
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('userId'); // <-- Clears ID on logout
+    localStorage.removeItem('token');
+    navigate('/');
+  };
+
   return (
     <div className="dashboard-container">
       {/* Sidebar Navigation */}
       <aside className="sidebar">
         <div className="profile-header">
           <div className="avatar-placeholder"></div>
-          <span className="profile-name">ABC Holdings</span>
+          <span className="profile-name">ABC Company</span>
         </div>
 
         <div className="sidebar-white-card">
@@ -50,7 +82,7 @@ export default function Dashboard() {
           </nav>
 
           <div className="sidebar-bottom">
-            <button className="logout-link" onClick={() => navigate('/')}>Logout</button>
+            <button className="logout-link" onClick={handleLogout}>Logout</button>
           </div>
         </div>
       </aside>
@@ -75,7 +107,6 @@ export default function Dashboard() {
             >
               <div className="manager-avatar"></div>
               <div className="manager-info">
-                {/* Dynamically rendering the first name here */}
                 <span className="manager-title">{loggedInUser.firstName} ˅</span>
                 <span className="manager-date">21/12/2026</span>
               </div>
@@ -95,7 +126,12 @@ export default function Dashboard() {
             {activeTab === 'myWork' && (
               <>
                 {tasks.map((task) => (
-                  <div className="task-card" key={task.id} onClick={() => setShowTaskPopup(true)} style={{ cursor: 'pointer' }}>
+                  <div 
+                    className="task-card" 
+                    key={task.id} 
+                    onClick={() => setShowTaskPopup(true)} 
+                    style={{ cursor: 'pointer' }}
+                  >
                     <div className={`accent-bar ${task.status}`}></div>
                     <div className="task-content">
                       <h3 className="task-title">{task.title}</h3>

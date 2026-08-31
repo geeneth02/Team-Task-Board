@@ -5,23 +5,22 @@ import './ProfileMenu.css';
 export default function ProfileMenu({ user, onClose }) {
   const navigate = useNavigate();
   
-  // Tracks which form is open: null, 'photo', 'details', 'role', 'password'
   const [activeModal, setActiveModal] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // Form States
   const [photoUrl, setPhotoUrl] = useState(user.profilePhoto || '');
   const [firstName, setFirstName] = useState(user.firstName || '');
   const [lastName, setLastName] = useState(user.lastName || '');
-  const [role, setRole] = useState(user.role || 'Member');
+  const [role, setRole] = useState(user.jobRole || user.role || '');
   const [newPassword, setNewPassword] = useState('');
 
   const handleSignOut = () => {
+    localStorage.removeItem('userName');
+    localStorage.removeItem('userRole'); // Ensure role is cleared
     localStorage.removeItem('token');
     navigate('/');
   };
 
-  // Dynamic function to handle all updates
   const handleUpdate = async (type) => {
     if (!user._id) {
       alert("Error: User ID is missing. Ensure your login sets the user._id!");
@@ -33,10 +32,10 @@ export default function ProfileMenu({ user, onClose }) {
       let bodyData = {};
       let url = `http://localhost:5000/api/auth/profile/${user._id}`;
 
-      // Map the correct data based on which form is open
       if (type === 'photo') bodyData = { profilePhoto: photoUrl };
       if (type === 'details') bodyData = { firstName, lastName };
-      if (type === 'role') bodyData = { role };
+      // FIXED: Send 'jobRole' in the request body to match the backend
+      if (type === 'role') bodyData = { jobRole: role }; 
       if (type === 'password') {
         url = `http://localhost:5000/api/auth/password/${user._id}`;
         bodyData = { newPassword };
@@ -49,8 +48,15 @@ export default function ProfileMenu({ user, onClose }) {
       });
 
       if (response.ok) {
+        // FIXED: Update local storage so the Dashboard updates immediately
+        if (type === 'role') localStorage.setItem('userRole', role);
+        if (type === 'details') {
+            const fullName = lastName ? `${firstName} ${lastName}` : firstName;
+            localStorage.setItem('userName', fullName);
+        }
+        
         alert('Update successful! (Refresh to see changes)');
-        setActiveModal(null); // Close the form
+        setActiveModal(null); 
       } else {
         const err = await response.json();
         alert(`Failed to update: ${err.message}`);
@@ -63,7 +69,6 @@ export default function ProfileMenu({ user, onClose }) {
     }
   };
 
-  // If a modal is active, render the form overlay instead of the dropdown
   if (activeModal) {
     return (
       <div className="profile-modal-overlay" onClick={() => setActiveModal(null)}>
@@ -94,12 +99,13 @@ export default function ProfileMenu({ user, onClose }) {
 
             {activeModal === 'role' && (
               <>
-                <label>Select Role</label>
-                <select value={role} onChange={(e) => setRole(e.target.value)} className="form-input">
-                  <option value="Admin">Admin</option>
-                  <option value="Manager">Manager</option>
-                  <option value="Member">Member</option>
-                </select>
+                <label>Job Role</label>
+                <input 
+                  type="text" 
+                  value={role} 
+                  onChange={(e) => setRole(e.target.value)} 
+                  className="form-input" 
+                />
               </>
             )}
 
@@ -122,14 +128,13 @@ export default function ProfileMenu({ user, onClose }) {
     );
   }
 
-  // Otherwise, render the standard dropdown menu
   return (
     <div className="profile-modal-overlay" onClick={onClose}>
       <div className="profile-menu-container" onClick={(e) => e.stopPropagation()}>
         <div className="profile-menu-header">
           <img src={user.profilePhoto || 'https://via.placeholder.com/50'} alt="Profile" className="profile-menu-avatar" />
           <h3 style={{ margin: '10px 0 0 0' }}>
-            {user.firstName} <span style={{ fontWeight: 'normal', fontSize: '14px' }}>({user.role || 'Member'})</span>
+            {user.firstName} <span style={{ fontWeight: 'normal', fontSize: '14px' }}>({user.jobRole || user.role || 'Member'})</span>
           </h3>
         </div>
 
