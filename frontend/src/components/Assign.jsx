@@ -16,8 +16,22 @@ export default function Assign() {
   const [loading, setLoading] = useState(true);
   const [openMenuId, setOpenMenuId] = useState(null); 
   const [selectedTask, setSelectedTask] = useState(null); 
+  const [displayName, setDisplayName] = useState('Manager'); // NEW: State to hold the user's name
 
   useEffect(() => {
+    // Extract first, last, or username from localStorage to show full name
+    const fName = localStorage.getItem('firstName') || '';
+    const lName = localStorage.getItem('lastName') || '';
+    const uName = localStorage.getItem('userName') || '';
+
+    if (fName && lName) {
+      setDisplayName(`${fName} ${lName}`);
+    } else if (uName) {
+      setDisplayName(uName);
+    } else if (fName) {
+      setDisplayName(fName);
+    }
+
     fetchTasks();
 
     socket.on('taskUpdateReceived', (updatedTask) => {
@@ -191,7 +205,8 @@ export default function Assign() {
             </button>
             <div className="manager-avatar"></div>
             <div className="manager-info">
-              <span className="manager-title" style={{fontWeight: '500'}}>Manager ˅</span>
+              {/* UPDATED: Replacing "Manager" with the dynamic display name */}
+              <span className="manager-title" style={{fontWeight: '500'}}>{displayName} ˅</span>
             </div>
           </div>
         </header>
@@ -205,6 +220,7 @@ export default function Assign() {
         </main>
       </div>
 
+      {/* Interactive Modal code remains untouched below */}
       {selectedTask && (
         <div 
           onClick={() => setSelectedTask(null)} 
