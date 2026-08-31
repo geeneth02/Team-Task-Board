@@ -16,6 +16,8 @@ const LoginPage = () => {
     password: ''
   });
 
+  const [loading, setLoading] = useState(false);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prevState => ({
@@ -26,7 +28,8 @@ const LoginPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+    setLoading(true); // From main: Starts the loading spinner
+
     try {
       const response = await fetch('http://localhost:5000/api/auth/login', {
         method: 'POST',
@@ -39,33 +42,39 @@ const LoginPage = () => {
 
       const data = await response.json();
       
-      // Look at your browser's console after logging in to see this!
+      // From auth-fix: Helpful for debugging
       console.log("Backend response:", data);
 
-      if (response.ok) {
-        localStorage.setItem('token', data.token); 
-        
-        // Try to pull the registered name directly from your database's response
-        let dbName = formData.name; // Fallback to what was typed
-        
-        // Check various common ways your backend might send the user data back
-        if (data.user && data.user.firstName) {
-            dbName = data.user.lastName ? `${data.user.firstName} ${data.user.lastName}` : data.user.firstName;
-        } else if (data.user && data.user.name) {
-            dbName = data.user.name;
-        } else if (data.name) {
-            dbName = data.name;
-        }
-
-        // Save the real database name to memory so Dashboard can use it
-        localStorage.setItem('userName', dbName); 
-        navigate('/dashboard');
-      } else {
+      if (!response.ok) {
         alert(data.message || 'Login failed: Invalid credentials');
+        setLoading(false);
+        return;
       }
+
+      // 1. Store the token
+      localStorage.setItem('token', data.token); 
+      
+      // 2. From auth-fix: Pull the registered name directly from the database response
+      let dbName = formData.name; 
+      
+      if (data.user && data.user.firstName) {
+          dbName = data.user.lastName ? `${data.user.firstName} ${data.user.lastName}` : data.user.firstName;
+      } else if (data.user && data.user.name) {
+          dbName = data.user.name;
+      } else if (data.name) {
+          dbName = data.name;
+      }
+
+      // Save the real database name to memory so Dashboard can use it
+      localStorage.setItem('userName', dbName); 
+      
+      // 3. Navigate to dashboard
+      navigate('/dashboard');
+      
     } catch (error) {
       console.error('Error during login:', error);
-      alert('Unable to connect to the server.');
+      alert('Cannot connect to backend server. Make sure your backend server is running on port 5000.');
+      setLoading(false); // From main: Stops the loading spinner on error
     }
   };
 
@@ -136,8 +145,8 @@ const LoginPage = () => {
             />
           </div>
 
-          <button type="submit" className="login-button">
-            Login
+          <button type="submit" className="login-button" disabled={loading}>
+            {loading ? 'Logging in...' : 'Login'}
           </button>
 
           <div className="signup-link-container">

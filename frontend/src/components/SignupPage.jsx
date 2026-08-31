@@ -14,10 +14,12 @@ const SignupPage = () => {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
-    jobRole: '', // Starts empty so the user is forced to select from the dropdown
+    jobRole: '', 
     password: '',
     confirmPassword: ''
   });
+
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -34,30 +36,37 @@ const SignupPage = () => {
       alert("Passwords do not match!");
       return;
     }
-    
+
+    setLoading(true); // From main: start the loading state
+
     try {
       const response = await fetch('http://localhost:5000/api/auth/register', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
           firstName: formData.firstName,
           lastName: formData.lastName,
-          jobRole: formData.jobRole,
+          jobRole: formData.jobRole, // From auth-fix: include the job role
           password: formData.password
-        })
+        }),
       });
 
       const data = await response.json();
 
-      if (response.ok) {
-        alert('Registration successful! Please log in.');
-        navigate('/');
-      } else {
+      if (!response.ok) {
         alert(data.message || 'Registration failed');
+        setLoading(false); // From main: stop loading on error
+        return;
       }
+
+      alert('Account created successfully! Please log in.');
+      navigate('/');
     } catch (error) {
-      console.error('Error during registration:', error);
-      alert('Unable to connect to the server.');
+      console.error('Registration error:', error);
+      alert('Cannot connect to backend server. Make sure your backend server is running on port 5000.');
+      setLoading(false); // From main: stop loading on error
     }
   };
 
@@ -170,13 +179,11 @@ const SignupPage = () => {
             />
           </div>
 
-          <button type="submit" className="signup-button">
-            Sign UP
+          <button type="submit" className="signup-button" disabled={loading}>
+            {loading ? 'Creating Account...' : 'Sign UP'}
           </button>
         </form>
       </div>
-
-    
     </div>
   );
 };
