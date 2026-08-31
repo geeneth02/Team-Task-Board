@@ -142,26 +142,35 @@ export default function Dashboard() {
 
       {/* Main Viewport */}
       <div className="main-viewport">
-        <header className="top-navbar" style={{ position: 'relative' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+        {/* Updated Top Header Bar matching Assign Screen */}
+        <header className="top-navbar" style={{ position: 'relative', justifyContent: 'space-between', paddingLeft: '40px' }}>
+          <div style={{ fontSize: '15px', fontWeight: '500', color: '#1a202c' }}>
+            {new Date().toLocaleDateString('en-GB')}
+          </div>
+
+          <div className="manager-profile" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
             <button 
               onClick={() => setShowNotifications(!showNotifications)}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', position: 'relative', display: 'flex', alignItems: 'center' }}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', position: 'relative', display: 'flex', alignItems: 'center', marginRight: '5px' }}
             >
               <BellIcon />
               <span style={{ position: 'absolute', top: '0px', right: '2px', width: '8px', height: '8px', backgroundColor: '#e53e3e', borderRadius: '50%' }}></span>
             </button>
 
-            {/* Clickable Top-Right Profile Section */}
+            <button 
+              onClick={() => navigate('/add-task')}
+              style={{ backgroundColor: '#030b2e', color: 'white', padding: '8px 16px', borderRadius: '24px', border: 'none', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '600', cursor: 'pointer', marginRight: '10px' }}
+            >
+              <span style={{ backgroundColor: 'white', color: '#030b2e', borderRadius: '50%', width: '18px', height: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', fontWeight: 'bold' }}>+</span> Assign
+            </button>
+
             <div 
-              className="manager-profile"
+              style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}
               onClick={() => setShowProfileMenu(true)}
-              style={{ cursor: 'pointer' }}
             >
               <div className="manager-avatar"></div>
               <div className="manager-info">
-                <span className="manager-title">{loggedInUser.firstName} ˅</span>
-                <span className="manager-date">21/12/2026</span>
+                <span className="manager-title" style={{ fontWeight: '500' }}>{loggedInUser.firstName || 'Manager'} ˅</span>
               </div>
             </div>
           </div>
@@ -202,7 +211,11 @@ export default function Dashboard() {
                     <div 
                       className="task-card" 
                       key={task._id} 
+<<<<<<< HEAD
                       onClick={() => setSelectedTask(task)} // Opens the interactive popup modal!
+=======
+                      onClick={() => setSelectedTask(task)}
+>>>>>>> 1536209 (Update dashboard header layout to match assign screen)
                       style={{ cursor: 'pointer' }}
                     >
                       <div className={`accent-bar ${getStatusColor(task.status)}`}></div>
