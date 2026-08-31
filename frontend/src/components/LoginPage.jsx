@@ -9,12 +9,14 @@ const getHexPoints = (cx, cy, r) => {
 };
 
 const LoginPage = () => {
-  const navigate = useNavigate(); // This is required to switch pages
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     name: '',
     password: ''
   });
+
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -24,10 +26,40 @@ const LoginPage = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Login submitted:', formData);
-    navigate('/dashboard');
+    setLoading(true);
+
+    try {
+      const response = await fetch('http://localhost:5000/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          password: formData.password
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.message || 'Invalid credentials');
+        setLoading(false);
+        return;
+      }
+
+      // Store the JWT token in localStorage for session handling
+      localStorage.setItem('token', data.token);
+
+      // Navigate to dashboard upon successful login
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Login error:', error);
+      alert('Cannot connect to backend server. Make sure your backend server is running on port 5000.');
+      setLoading(false);
+    }
   };
 
   const R = 75; 
@@ -97,12 +129,11 @@ const LoginPage = () => {
             />
           </div>
 
-          <button type="submit" className="login-button">
-            Login
+          <button type="submit" className="login-button" disabled={loading}>
+            {loading ? 'Logging in...' : 'Login'}
           </button>
 
           <div className="signup-link-container">
-            {/* The onClick here uses the navigate function to change the URL to /signup */}
             <span className="signup-link" onClick={() => navigate('/signup')}>
               Click here to Sign Up
             </span>

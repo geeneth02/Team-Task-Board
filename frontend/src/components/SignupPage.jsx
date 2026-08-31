@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './SignupPage.css';
 
-// Generates points for a pointy-topped hexagon (Reused from Login)
 const getHexPoints = (cx, cy, r) => {
   const hw = (Math.sqrt(3) / 2) * r;
   const hh = r / 2;
@@ -10,7 +9,7 @@ const getHexPoints = (cx, cy, r) => {
 };
 
 const SignupPage = () => {
-  const navigate = useNavigate(); // Initialize the navigation hook
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     firstName: '',
@@ -18,6 +17,8 @@ const SignupPage = () => {
     password: '',
     confirmPassword: ''
   });
+
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -27,22 +28,47 @@ const SignupPage = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (formData.password !== formData.confirmPassword) {
       alert("Passwords do not match!");
       return;
     }
-    
-    // This is where you will send the new user data to your Node/Express backend
-    console.log('Registration submitted:', formData);
 
-    // Instantly navigate back to the login screen
-    navigate('/');
+    setLoading(true);
+
+    try {
+      const response = await fetch('http://localhost:5000/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          password: formData.password
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.message || 'Registration failed');
+        setLoading(false);
+        return;
+      }
+
+      alert('Account created successfully! Please log in.');
+      navigate('/');
+    } catch (error) {
+      console.error('Registration error:', error);
+      alert('Cannot connect to backend server. Make sure your backend server is running on port 5000.');
+      setLoading(false);
+    }
   };
 
-  const R = 75; // Hexagon radius
+  const R = 75;
   const darkColor = "#021342";
   const lightColor = "#d6dadf";
 
@@ -134,8 +160,8 @@ const SignupPage = () => {
             />
           </div>
 
-          <button type="submit" className="signup-button">
-            Sign UP
+          <button type="submit" className="signup-button" disabled={loading}>
+            {loading ? 'Creating Account...' : 'Sign UP'}
           </button>
         </form>
       </div>
