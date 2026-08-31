@@ -1,67 +1,139 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom'; // Added useLocation
 import './AddTask.css';
 
 const AddTask = () => {
-  const [priority, setPriority] = useState('High');
-  const navigate = useNavigate(); // Initialize the hook
+  const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Extract task data if we came from the "Update" button
+  const editTask = location.state?.editTask;
+
+  // Initialize state with editTask data if it exists, otherwise empty
+  const [title, setTitle] = useState(editTask ? editTask.title : '');
+  const [description, setDescription] = useState(editTask ? editTask.description : '');
+  const [assignee, setAssignee] = useState(editTask && editTask.assignees[0] ? editTask.assignees[0] : '');
+  const [startDate, setStartDate] = useState(editTask ? editTask.startDate : '');
+  const [dueDate, setDueDate] = useState(editTask ? editTask.dueDate : '');
+  const [priority, setPriority] = useState(editTask ? editTask.priority : 'High');
+  // Only show status dropdown if we are editing an existing task
+  const [status, setStatus] = useState(editTask ? editTask.status : 'Not Started');
+  const [loading, setLoading] = useState(false);
+  const [users, setUsers] = useState([]);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/auth/users');
+        if (response.ok) {
+          const data = await response.json();
+          setUsers(data);
+        }
+      } catch (error) {
+        console.error('Error fetching users:', error);
+      }
+    };
+    fetchUsers();
+  }, []);
+
+  const handleCreateOrUpdateTask = async () => {
+    if (!title || !assignee) {
+      alert('Please provide at least a title and an assignee.');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      // If editing, use PUT and target the specific task ID. Otherwise POST.
+      const method = editTask ? 'PUT' : 'POST';
+      const url = editTask 
+        ? `http://localhost:5000/api/tasks/${editTask._id}` 
+        : 'http://localhost:5000/api/tasks';
+
+      const response = await fetch(url, {
+        method: method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title,
+          description,
+          assignees: [assignee], 
+          startDate,
+          dueDate,
+          priority,
+          status // Will be 'Not Started' for new tasks, or whatever is selected for existing tasks
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to save task');
+
+      navigate('/assign');
+    } catch (error) {
+      console.error('Error saving task:', error);
+      alert('Cannot connect to backend server.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="page-wrapper">
-      <div className="form-card">
-        <h2 className="form-title">Add New Task / Assignee</h2>
+      <div className="form-card" style={{ minWidth: '550px' }}>
+        <h2 className="form-title">{editTask ? 'Update Task' : 'Add New Task / Assignee'}</h2>
 
-        {/* Task Title */}
         <div className="form-group">
           <label>Task Title</label>
-          <select className="form-input custom-select">
-            <option>UI Design</option>
-            <option>Backend Development</option>
-            <option>Market Research</option>
+          <input 
+            type="text" 
+            className="form-input text-input" 
+            placeholder="e.g., UI Design" 
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+        </div>
+
+        <div className="form-group">
+          <label>Description (Tag)</label>
+          <input 
+            type="text" 
+            className="form-input text-input" 
+            placeholder="e.g., with consultation" 
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
+        </div>
+
+        <div className="form-group">
+          <label>Assign To</label>
+          <select 
+            className="form-input custom-select"
+            value={assignee}
+            onChange={(e) => setAssignee(e.target.value)}
+          >
+            <option value="">Select a team member...</option>
+            {users.map(user => (
+              <option key={user._id} value={user.firstName}>
+                {user.firstName} {user.lastName}
+              </option>
+            ))}
           </select>
         </div>
 
-        {/* Description */}
-        <div className="form-group">
-          <label>Description</label>
-          <input type="text" className="form-input text-input" placeholder="Description..." />
-        </div>
-
-        {/* Assign To */}
-        <div className="form-group">
-          <label>Assign To</label>
-          <div className="form-input mock-multi-select">
-            <div className="tags-container">
-              <span className="assignee-tag">
-                <span className="avatar">👩🏽</span> Amaya (UI) <span className="close-x">✕</span>
-              </span>
-              <span className="assignee-tag">
-                <span className="avatar">👨🏻</span> Ravindu (PM) <span className="close-x">✕</span>
-              </span>
-            </div>
-            <span className="dropdown-arrow">⌄</span>
-          </div>
-        </div>
-
-        {/* Dates Row */}
         <div className="form-row">
           <div className="form-group half-width">
             <label>Start Date</label>
             <div className="date-input-wrapper">
-              <input type="text" className="form-input" defaultValue="22/12/2026" />
-              <span className="calendar-icon">📅</span>
+              <input type="date" className="form-input" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
             </div>
           </div>
           <div className="form-group half-width">
             <label>Due Date</label>
             <div className="date-input-wrapper">
-              <input type="text" className="form-input" defaultValue="22/12/2026" />
-              <span className="calendar-icon">📅</span>
+              <input type="date" className="form-input" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
             </div>
           </div>
         </div>
 
-        {/* Priority & Status Row */}
         <div className="form-row">
           <div className="form-group half-width">
             <label>Priority</label>
@@ -78,30 +150,24 @@ const AddTask = () => {
               ))}
             </div>
           </div>
-          <div className="form-group half-width">
-            <label>Column Status</label>
-            <select className="form-input custom-select">
-              <option>Not Started</option>
-              <option>Ongoing</option>
-              <option>Finished</option>
-            </select>
-          </div>
+          {/* ONLY show column status if updating, so they can move it to Ongoing/Finished */}
+          {editTask && (
+            <div className="form-group half-width">
+              <label>Column Status</label>
+              <select className="form-input custom-select" value={status} onChange={(e) => setStatus(e.target.value)}>
+                <option>Not Started</option>
+                <option>Ongoing</option>
+                <option>Finished</option>
+              </select>
+            </div>
+          )}
         </div>
 
-        {/* Action Buttons */}
         <div className="form-actions">
-          <button 
-            className="btn-primary" 
-            onClick={() => {
-              console.log('Task created!');
-              navigate('/assign'); // Added navigation here
-            }}
-          >
-            + Create & Assign
+          <button className="btn-primary" onClick={handleCreateOrUpdateTask} disabled={loading}>
+            {loading ? 'Saving...' : (editTask ? 'Update Task' : '+ Create & Assign')}
           </button>
-          <button className="btn-secondary">
-            Cancel
-          </button>
+          <button className="btn-secondary" onClick={() => navigate('/assign')}>Cancel</button>
         </div>
       </div>
     </div>
