@@ -16,21 +16,20 @@ export default function Dashboard() {
   const [showTaskPopup, setShowTaskPopup] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false); 
   
-  // State to hold data from local storage
-  const [userName, setUserName] = useState('User');
+  const [userName, setUserName] = useState('');
   const [userRole, setUserRole] = useState('Member'); 
   const [userId, setUserId] = useState('');
 
-  // States for fetching assigned tasks and opening the interactive details modal
-  const [assignedTasks, setAssignedTasks] = useState([]);
+  const [myWorkTasks, setMyWorkTasks] = useState([]);
+  const [assignedWorkTasks, setAssignedWorkTasks] = useState([]);
   const [loadingTasks, setLoadingTasks] = useState(true);
   const [selectedTask, setSelectedTask] = useState(null); 
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    const storedName = localStorage.getItem('userName');
-    if (storedName) setUserName(storedName);
+    const storedName = localStorage.getItem('userName') || '';
+    setUserName(storedName);
 
     const storedRole = localStorage.getItem('userRole');
     if (storedRole) setUserRole(storedRole);
@@ -38,29 +37,79 @@ export default function Dashboard() {
     const storedId = localStorage.getItem('userId');
     if (storedId) setUserId(storedId);
 
-    fetchAssignedTasks();
+    fetchTasks(storedName, storedId);
   }, []);
 
-  const fetchAssignedTasks = async () => {
+  const matchesUser = (field, name, id) => {
+    if (!field) return false;
+    const nameLower = name ? name.trim().toLowerCase() : '';
+    const idStr = id ? String(id).trim() : '';
+
+    if (typeof field === 'object' && field !== null) {
+      const fieldName = (field.name || field.firstName || field.username || '').trim().toLowerCase();
+      const fieldId = String(field._id || field.id || '').trim();
+      return (idStr && fieldId === idStr) || 
+             (nameLower && fieldName && (fieldName.includes(nameLower) || nameLower.includes(fieldName)));
+    }
+
+    const fieldStr = String(field).trim().toLowerCase();
+    if (!fieldStr) return false;
+
+    if (idStr && fieldStr === idStr.toLowerCase()) return true;
+    if (nameLower && (fieldStr.includes(nameLower) || nameLower.includes(fieldStr))) return true;
+
+    const nameParts = nameLower.split(/\s+/);
+    const fieldParts = fieldStr.split(/\s+/);
+    return nameParts.some(part => part.length > 1 && fieldStr.includes(part)) ||
+           fieldParts.some(part => part.length > 1 && nameLower.includes(part));
+  };
+
+  const fetchTasks = async (currentUserName, currentUserId) => {
     try {
       setLoadingTasks(true);
       const response = await fetch('http://localhost:5000/api/tasks');
       if (!response.ok) throw new Error('Failed to fetch tasks');
       const data = await response.json();
 
-      const today = new Date();
-      const recentTasks = data.filter(task => {
-        if (!task.createdAt) return false;
-        
-        const taskDate = new Date(task.createdAt);
-        const isToday = taskDate.getDate() === today.getDate() &&
-                        taskDate.getMonth() === today.getMonth() &&
-                        taskDate.getFullYear() === today.getFullYear();
+      const assignedToMe = [];
+      const assignedByMe = [];
 
-        return isToday;
+      data.forEach(task => {
+        const creatorFields = [
+          task.createdBy,
+          task.manager,
+          task.assignedBy,
+          task.user,
+          task.sender,
+          task.owner,
+          task.created_by
+        ];
+        
+        const isCreatedByMe = creatorFields.some(field => matchesUser(field, currentUserName, currentUserId));
+
+        let assigneesList = [];
+        if (Array.isArray(task.assignees)) {
+          assigneesList = task.assignees;
+        } else if (task.assignee) {
+          assigneesList = [task.assignee];
+        }
+
+        const isAssignedToMe = assigneesList.some(assignee => matchesUser(assignee, currentUserName, currentUserId));
+
+        // 1. Tasks assigned TO me -> My work
+        if (isAssignedToMe) {
+          assignedToMe.push(task);
+        }
+
+        // 2. Tasks assigned BY me -> Assigned work (Strictly filtered by creator match)
+        if (isCreatedByMe) {
+          assignedByMe.push(task);
+        }
       });
 
-      setAssignedTasks(recentTasks);
+      setMyWorkTasks(assignedToMe);
+      setAssignedWorkTasks(assignedByMe);
+
     } catch (error) {
       console.error('Error loading tasks:', error);
     } finally {
@@ -76,7 +125,8 @@ export default function Dashboard() {
         method: 'DELETE',
       });
       if (response.ok) {
-        setAssignedTasks(assignedTasks.filter(task => task._id !== taskId));
+        setMyWorkTasks(myWorkTasks.filter(task => task._id !== taskId));
+        setAssignedWorkTasks(assignedWorkTasks.filter(task => task._id !== taskId));
         setSelectedTask(null); 
       } else {
         alert('Failed to delete task');
@@ -92,17 +142,10 @@ export default function Dashboard() {
 
   const loggedInUser = {
     _id: userId, 
-    firstName: userName, 
+    firstName: userName || 'User', 
     role: userRole,
     profilePhoto: '' 
   };
-
-  const tasks = [
-    { id: 1, title: 'UI Design', sub: 'with consultation', assignee: 'Amaya (Ui designer)', date: '22/15/2026', status: 'red' },
-    { id: 2, title: 'Backend code', sub: 'with consultation', assignee: 'Anush', date: '22/15/2026', status: 'green' }
-  ];
-
-  const placeholders = Array.from({ length: 10 });
 
   const handleLogout = () => {
     localStorage.removeItem('userName');
@@ -124,7 +167,7 @@ export default function Dashboard() {
       <aside className="sidebar">
         <div className="profile-header">
           <div className="avatar-placeholder"></div>
-          <span className="profile-name">ABC Company</span>
+          <span className="profile-name">Team Task Board</span>
         </div>
 
         <div className="sidebar-white-card">
@@ -142,26 +185,34 @@ export default function Dashboard() {
 
       {/* Main Viewport */}
       <div className="main-viewport">
-        <header className="top-navbar" style={{ position: 'relative' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+        <header className="top-navbar" style={{ position: 'relative', justifyContent: 'space-between', paddingLeft: '40px' }}>
+          <div style={{ fontSize: '15px', fontWeight: '500', color: '#1a202c' }}>
+            {new Date().toLocaleDateString('en-GB')}
+          </div>
+
+          <div className="manager-profile" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
             <button 
               onClick={() => setShowNotifications(!showNotifications)}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', position: 'relative', display: 'flex', alignItems: 'center' }}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', position: 'relative', display: 'flex', alignItems: 'center', marginRight: '5px' }}
             >
               <BellIcon />
               <span style={{ position: 'absolute', top: '0px', right: '2px', width: '8px', height: '8px', backgroundColor: '#e53e3e', borderRadius: '50%' }}></span>
             </button>
 
-            {/* Clickable Top-Right Profile Section */}
+            <button 
+              onClick={() => navigate('/add-task')}
+              style={{ backgroundColor: '#030b2e', color: 'white', padding: '8px 16px', borderRadius: '24px', border: 'none', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '600', cursor: 'pointer', marginRight: '10px' }}
+            >
+              <span style={{ backgroundColor: 'white', color: '#030b2e', borderRadius: '50%', width: '18px', height: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', fontWeight: 'bold' }}>+</span> Assign
+            </button>
+
             <div 
-              className="manager-profile"
+              style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}
               onClick={() => setShowProfileMenu(true)}
-              style={{ cursor: 'pointer' }}
             >
               <div className="manager-avatar"></div>
               <div className="manager-info">
-                <span className="manager-title">{loggedInUser.firstName} ˅</span>
-                <span className="manager-date">21/12/2026</span>
+                <span className="manager-title" style={{ fontWeight: '500' }}>{loggedInUser.firstName || 'Manager'} ˅</span>
               </div>
             </div>
           </div>
@@ -178,31 +229,14 @@ export default function Dashboard() {
           <div className="grid-canvas">
             {activeTab === 'myWork' && (
               <>
-                {tasks.map((task) => (
-                  <div className="task-card" key={task.id} onClick={() => setShowTaskPopup(true)} style={{ cursor: 'pointer' }}>
-                    <div className={`accent-bar ${task.status}`}></div>
-                    <div className="task-content">
-                      <h3 className="task-title">{task.title}</h3>
-                      <span className="task-subtext">{task.sub}</span>
-                      <div className="assignee-tag"><span className="grey-dot"></span><span className="assignee-text">{task.assignee}</span></div>
-                      <span className="date-text">{task.date}</span>
-                    </div>
-                  </div>
-                ))}
-                {placeholders.map((_, i) => <div className="task-card placeholder" key={i}></div>)}
-              </>
-            )}
-            
-            {activeTab === 'assignedWork' && (
-              <>
                 {loadingTasks ? (
-                  <div className="empty-view">Loading assigned tasks...</div>
-                ) : assignedTasks.length > 0 ? (
-                  assignedTasks.map((task) => (
+                  <div className="empty-view">Loading your tasks...</div>
+                ) : myWorkTasks.length > 0 ? (
+                  myWorkTasks.map((task) => (
                     <div 
                       className="task-card" 
                       key={task._id} 
-                      onClick={() => setSelectedTask(task)} // Opens the interactive popup modal!
+                      onClick={() => setSelectedTask(task)} 
                       style={{ cursor: 'pointer' }}
                     >
                       <div className={`accent-bar ${getStatusColor(task.status)}`}></div>
@@ -212,7 +246,7 @@ export default function Dashboard() {
                         <div className="assignee-tag">
                           <span className="grey-dot"></span>
                           <span className="assignee-text">
-                            {task.assignees && task.assignees[0] ? task.assignees[0] : 'Unassigned'}
+                            {task.assignees ? task.assignees.join(', ') : (task.assignee || 'Unassigned')}
                           </span>
                         </div>
                         <span className="date-text">{task.dueDate || 'No Date'}</span>
@@ -220,7 +254,39 @@ export default function Dashboard() {
                     </div>
                   ))
                 ) : (
-                  <div className="empty-view">No assigned work available for today</div>
+                  <div className="empty-view">No tasks assigned to you yet</div>
+                )}
+              </>
+            )}
+            
+            {activeTab === 'assignedWork' && (
+              <>
+                {loadingTasks ? (
+                  <div className="empty-view">Loading assigned tasks...</div>
+                ) : assignedWorkTasks.length > 0 ? (
+                  assignedWorkTasks.map((task) => (
+                    <div 
+                      className="task-card" 
+                      key={task._id} 
+                      onClick={() => setSelectedTask(task)}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      <div className={`accent-bar ${getStatusColor(task.status)}`}></div>
+                      <div className="task-content">
+                        <h3 className="task-title">{task.title}</h3>
+                        <span className="task-subtext">{task.description || 'No description'}</span>
+                        <div className="assignee-tag">
+                          <span className="grey-dot"></span>
+                          <span className="assignee-text">
+                            {task.assignees && task.assignees.length > 0 ? task.assignees.join(', ') : (task.assignee || 'Unassigned')}
+                          </span>
+                        </div>
+                        <span className="date-text">{task.dueDate || 'No Date'}</span>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="empty-view">No work assigned by you available</div>
                 )}
               </>
             )}
@@ -284,6 +350,11 @@ export default function Dashboard() {
                         {person}
                       </span>
                     ))
+                  ) : selectedTask.assignee ? (
+                    <span style={{ backgroundColor: '#030b2e', color: 'white', padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#73e23d' }}></span>
+                      {selectedTask.assignee}
+                    </span>
                   ) : (
                     <span style={{ color: '#a0aec0', fontSize: '13px' }}>Unassigned</span>
                   )}
@@ -323,10 +394,8 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* Render popups conditionally */}
       {showTaskPopup && <TaskPopup onClose={() => setShowTaskPopup(false)} />}
       
-      {/* Profile Menu Popup */}
       {showProfileMenu && (
         <ProfileMenu 
           user={loggedInUser} 

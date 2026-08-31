@@ -121,9 +121,10 @@ body, html, #root {
   height: 70px;
   background-color: #ffffff;
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between; /* Changed from flex-end */
   align-items: center;
   padding-right: 40px;
+  padding-left: 40px; /* Added left padding */
   flex-shrink: 0;
 }
 

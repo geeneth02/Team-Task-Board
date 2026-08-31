@@ -16,8 +16,21 @@ export default function Assign() {
   const [loading, setLoading] = useState(true);
   const [openMenuId, setOpenMenuId] = useState(null); 
   const [selectedTask, setSelectedTask] = useState(null); 
+  const [displayName, setDisplayName] = useState('Manager'); 
 
   useEffect(() => {
+    const fName = localStorage.getItem('firstName') || '';
+    const lName = localStorage.getItem('lastName') || '';
+    const uName = localStorage.getItem('userName') || '';
+
+    if (fName && lName) {
+      setDisplayName(`${fName} ${lName}`);
+    } else if (uName) {
+      setDisplayName(uName);
+    } else if (fName) {
+      setDisplayName(fName);
+    }
+
     fetchTasks();
 
     socket.on('taskUpdateReceived', (updatedTask) => {
@@ -28,7 +41,6 @@ export default function Assign() {
       const currentManager = (localStorage.getItem('firstName') || localStorage.getItem('userName') || '').trim().toLowerCase();
       const creator = (newTask.createdBy || '').trim().toLowerCase();
       
-      // ONLY append if it was strictly created by the logged-in manager
       if (creator && creator === currentManager) {
         setTasks(prevTasks => [newTask, ...prevTasks]);
       }
@@ -48,7 +60,6 @@ export default function Assign() {
 
       const currentManager = (localStorage.getItem('firstName') || localStorage.getItem('userName') || '').trim().toLowerCase();
 
-      // STRICT FILTER: Only show tasks where createdBy explicitly matches the logged-in user
       const myCreatedTasks = data.filter(task => {
         const creator = (task.createdBy || '').trim().toLowerCase();
         return creator === currentManager;
@@ -155,7 +166,7 @@ export default function Assign() {
       <aside className="sidebar">
         <div className="profile-header">
           <div className="avatar-placeholder"></div>
-          <span className="profile-name">BLA BLA</span>
+          <span className="profile-name">Team Task Board</span>
         </div>
 
         <div className="sidebar-white-card">
@@ -191,12 +202,13 @@ export default function Assign() {
             </button>
             <div className="manager-avatar"></div>
             <div className="manager-info">
-              <span className="manager-title" style={{fontWeight: '500'}}>Manager ˅</span>
+              <span className="manager-title" style={{fontWeight: '500'}}>{displayName} ˅</span>
             </div>
           </div>
         </header>
 
-        <main className="content-container" style={{ backgroundColor: '#f4f7fc', padding: '20px 30px' }}>
+        {/* Updated background color to #ffffff to match All Works UI */}
+        <main className="content-container" style={{ backgroundColor: '#ffffff', padding: '20px 30px' }}>
           <div className="assign-board" onClick={() => setOpenMenuId(null)}>
             {renderColumn('Not Started', 'Not Started', 'bg-red-light', 'dot-red')}
             {renderColumn('Ongoing', 'Ongoing', 'bg-orange-light', 'dot-orange')}
