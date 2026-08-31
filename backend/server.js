@@ -71,3 +71,6 @@ mongoose.connect(MONGO_URI)
   .catch((error) => {
     console.error('❌ MongoDB connection error:', error.message);
   });
+
+// Export the Express app for Supertest (Jest)
+module.exports = app;
