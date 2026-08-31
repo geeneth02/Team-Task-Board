@@ -15,10 +15,10 @@
   flex-direction: column;
 }
 
-/* Adjusted background colors */
-.bg-red-light { background-color: #f1e4e4; }
-.bg-orange-light { background-color: #f6efe6; }
-.bg-green-light { background-color: #e6f0e9; }
+/* Adjusted background colors to match the neutral All Works UI */
+.bg-red-light { background-color: #f8f9fa; }
+.bg-orange-light { background-color: #f8f9fa; }
+.bg-green-light { background-color: #f8f9fa; }
 
 .column-header {
   display: flex;
