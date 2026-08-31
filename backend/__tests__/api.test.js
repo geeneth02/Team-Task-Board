@@ -1,5 +1,5 @@
 const request = require('supertest');
-const app = require('../app');
+const app = require('../server');
 
 describe('Backend API Endpoints', () => {
   it('GET / - should return 200 OK and health status message', async () => {
